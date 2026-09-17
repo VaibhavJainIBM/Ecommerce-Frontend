@@ -1,0 +1,116 @@
+<div class="page">
+  <app-navbar>
+  </app-navbar>
+
+  <main class="storefront" id="products">
+    <header class="catalog-heading">
+      <div>
+        <p class="eyebrow">Marketplace</p>
+        <h1>Products</h1>
+      </div>
+
+      @if (isLoading()) {
+        <p class="listing-count">Loading</p>
+      } @else if (!errorMessage()) {
+        <p class="listing-count">{{ totalCount() }} listings</p>
+      }
+    </header>
+
+    @if (isLoading()) {
+      <div class="state" role="status">
+        Loading storefront…
+      </div>
+    } @else if (errorMessage()) {
+      <div class="state error-state" role="alert">
+        <p>{{ errorMessage() }}</p>
+
+        <button
+          class="retry-button"
+          type="button"
+          (click)="loadStorefront(currentPage())"
+        >
+          Try again
+        </button>
+      </div>
+    } @else if (listings().length === 0) {
+      <div class="state">
+        No products are currently available.
+      </div>
+    } @else {
+      <ul class="product-list">
+        @for (listing of listings(); track listing.listingId) {
+          <li>
+            <article class="product-row">
+              <div class="product-main">
+                <p class="product-meta">
+                  {{ listing.brandName }} · {{ listing.variantName }}
+                </p>
+
+                <h2>{{ listing.productTitle }}</h2>
+
+                <p class="description">
+                  {{ listing.description }}
+                </p>
+              </div>
+
+              <div class="detail">
+                <span class="label">Seller</span>
+                <span>{{ listing.sellerDisplayName }}</span>
+              </div>
+
+              <div class="detail">
+                <span class="label">Availability</span>
+
+                @if (listing.availableQuantity > 0) {
+                  <span>{{ listing.availableQuantity }} in stock</span>
+                } @else {
+                  <span class="out-of-stock">Out of stock</span>
+                }
+              </div>
+
+              <div class="purchase">
+                <strong class="price">
+                  {{
+                    listing.priceAmount
+                      | currency
+                        : listing.currencyCode
+                        : 'symbol'
+                        : '1.0-2'
+                  }}
+                </strong>
+
+                <button
+                  class="add-button"
+                  type="button"
+                  [disabled]="listing.availableQuantity === 0"
+                >
+                  Add
+                </button>
+              </div>
+            </article>
+          </li>
+        }
+      </ul>
+
+      <nav class="pagination" aria-label="Storefront pages">
+        <button
+          type="button"
+          [disabled]="currentPage() <= 1"
+          (click)="loadStorefront(currentPage() - 1)"
+        >
+          ← Previous
+        </button>
+
+        <span>{{ currentPage() }} / {{ totalPages() }}</span>
+
+        <button
+          type="button"
+          [disabled]="currentPage() >= totalPages()"
+          (click)="loadStorefront(currentPage() + 1)"
+        >
+          Next →
+        </button>
+      </nav>
+    }
+  </main>
+</div>

@@ -1,0 +1,48 @@
+.seller-list {
+  margin-top: 2rem;
+  border-top: 1px solid #deded8;
+}
+
+.seller-row {
+  padding-block: 1.5rem;
+  border-bottom: 1px solid #deded8;
+}
+
+.seller-row h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.seller-row > p {
+  color: #63635e;
+}
+
+dl {
+  display: grid;
+  grid-template-columns: 10rem 1fr;
+  gap: 0.5rem 1rem;
+  margin-block: 1.5rem;
+}
+
+dt {
+  color: #73736d;
+}
+
+dd {
+  margin: 0;
+}
+
+.access-message {
+  color: #215c39;
+}
+
+.restricted-message {
+  color: #8a3b12;
+}
+
+.workspace-link {
+  display: inline-block;
+  color: #171717;
+  font-weight: 700;
+}

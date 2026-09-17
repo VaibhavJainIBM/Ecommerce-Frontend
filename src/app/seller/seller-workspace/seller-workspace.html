@@ -1,0 +1,97 @@
+<app-navbar></app-navbar>
+
+@if (sellerContext.selected(); as seller) {
+  <header class="workspace-heading">
+    <p class="eyebrow">Seller workspace</p>
+    <h1>{{ seller.displayName }}</h1>
+
+    <p>
+      {{ seller.sellerStatus }}
+      ·
+      {{ seller.roles.join(', ') }}
+    </p>
+  </header>
+
+  <div class="workspace">
+    <nav
+      class="workspace-nav"
+      aria-label="Seller navigation"
+    >
+      <a
+        [routerLink]="[
+          '/seller',
+          seller.sellerId,
+          'overview'
+        ]"
+        routerLinkActive="active"
+      >
+        Overview
+      </a>
+
+      @if (sellerContext.canManage()) {
+        <a
+          [routerLink]="[
+            '/seller',
+            seller.sellerId,
+            'listings'
+          ]"
+          routerLinkActive="active"
+        >
+          Listings
+        </a>
+
+        <a
+          [routerLink]="[
+            '/seller',
+            seller.sellerId,
+            'orders'
+          ]"
+          routerLinkActive="active"
+        >
+          Orders
+        </a>
+      }
+
+      @if (sellerContext.canUseInventory()) {
+        <a
+          [routerLink]="[
+            '/seller',
+            seller.sellerId,
+            'warehouses'
+          ]"
+          routerLinkActive="active"
+        >
+          Warehouses
+        </a>
+
+        <a
+          [routerLink]="[
+            '/seller',
+            seller.sellerId,
+            'inventory'
+          ]"
+          routerLinkActive="active"
+        >
+          Inventory
+        </a>
+      }
+
+      @if (sellerContext.isOwner()) {
+        <a
+          [routerLink]="[
+            '/seller',
+            seller.sellerId,
+            'team'
+          ]"
+          routerLinkActive="active"
+        >
+          Team
+        </a>
+      }
+    </nav>
+
+    <main class="workspace-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+}

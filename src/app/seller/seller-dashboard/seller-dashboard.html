@@ -1,0 +1,62 @@
+<app-navbar></app-navbar>
+
+<main class="content-page">
+  <p class="eyebrow">Selling</p>
+  <h1>Seller area</h1>
+
+  @if (isLoading()) {
+    <p>Loading seller accounts…</p>
+  } @else if (errorMessage()) {
+    <p role="alert">{{ errorMessage() }}</p>
+  } @else if (sellers().length === 0) {
+    <p>
+      You do not currently belong to a seller account.
+    </p>
+
+    <p>
+      Seller onboarding will be added in a later lesson.
+    </p>
+  } @else {
+    <div class="seller-list">
+      @for (seller of sellers(); track seller.sellerId) {
+        <section class="seller-row">
+          <h2>{{ seller.displayName }}</h2>
+          <p>{{ seller.legalBusinessName }}</p>
+
+          <dl>
+            <dt>Seller status</dt>
+            <dd>{{ seller.sellerStatus }}</dd>
+
+            <dt>Membership status</dt>
+            <dd>{{ seller.memberStatus }}</dd>
+
+            <dt>Your roles</dt>
+            <dd>
+              @if (seller.roles.length > 0) {
+                {{ seller.roles.join(', ') }}
+              } @else {
+                No active role
+              }
+            </dd>
+          </dl>
+
+          @if (
+            seller.memberStatus === 'Active' &&
+            seller.roles.length > 0
+          ) {
+            <a
+              class="workspace-link"
+              [routerLink]="['/seller', seller.sellerId]"
+            >
+              Open workspace
+            </a>
+          } @else {
+            <p class="restricted-message">
+              Workspace access is currently unavailable.
+            </p>
+          }
+        </section>
+      }
+    </div>
+  }
+</main>

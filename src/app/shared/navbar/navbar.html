@@ -1,0 +1,25 @@
+<header class="navbar">
+  <a class="brand" routerLink="/">Ecommerce</a>
+
+  <nav aria-label="Primary navigation">
+    <a routerLink="/">Shop</a>
+
+    @if (authSession.isAuthenticated()) {
+      <a routerLink="/seller">Seller</a>
+
+      @if (authSession.hasRole(roles.Admin)) {
+        <a routerLink="/admin">Admin</a>
+      }
+
+      <a routerLink="/account">
+        {{ authSession.user()?.firstName || 'Account' }}
+      </a>
+
+      <button type="button" (click)="logout()">
+        Sign out
+      </button>
+    } @else {
+      <a routerLink="/login">Sign in</a>
+    }
+  </nav>
+</header>

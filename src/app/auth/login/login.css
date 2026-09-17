@@ -1,0 +1,172 @@
+:host {
+  display: block;
+}
+
+.login-page {
+  min-height: 100vh;
+}
+
+.topbar {
+  display: flex;
+  min-height: 4rem;
+  align-items: center;
+  justify-content: space-between;
+  padding-inline: clamp(1rem, 4vw, 3rem);
+  border-bottom: 1px solid #deded8;
+}
+
+.wordmark {
+  color: #171717;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+}
+
+.shop-link {
+  color: #171717;
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+
+.login-main {
+  width: min(28rem, calc(100% - 2rem));
+  margin-inline: auto;
+  padding-block: clamp(4rem, 12vw, 8rem);
+}
+
+.eyebrow {
+  margin: 0 0 0.75rem;
+  color: #73736d;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(2.5rem, 8vw, 4rem);
+  font-weight: 500;
+  letter-spacing: -0.055em;
+  line-height: 1;
+}
+
+.introduction {
+  margin: 1rem 0 0;
+  color: #63635e;
+  line-height: 1.5;
+}
+
+form {
+  padding-top: 2rem;
+  margin-top: 2rem;
+  border-top: 1px solid #deded8;
+}
+
+.field {
+  margin-bottom: 1.5rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+input {
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.75rem;
+  color: #171717;
+  background: white;
+  border: 1px solid #bdbdb6;
+  border-radius: 0;
+  outline: none;
+}
+
+input:focus {
+  border-color: #171717;
+  box-shadow: 0 0 0 1px #171717;
+}
+
+input[aria-invalid='true'] {
+  border-color: #a61b1b;
+}
+
+.password-field {
+  position: relative;
+}
+
+.password-field input {
+  padding-right: 4.5rem;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  padding: 0;
+  color: #52524e;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 700;
+  transform: translateY(-50%);
+}
+
+.error {
+  margin: 0.45rem 0 0;
+  color: #a61b1b;
+  font-size: 0.75rem;
+}
+
+.submit-button {
+  width: 100%;
+  min-height: 3rem;
+  color: white;
+  background: #171717;
+  border: 1px solid #171717;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.submit-button:hover {
+  color: #171717;
+  background: white;
+}
+
+.status {
+  padding: 0.75rem;
+  margin-top: 1rem;
+  color: #215c39;
+  border-left: 2px solid #215c39;
+  font-size: 0.8rem;
+}
+
+.permission-note {
+  padding-top: 1.5rem;
+  margin-top: 2rem;
+  color: #85857e;
+  border-top: 1px solid #deded8;
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid #171717;
+  outline-offset: 4px;
+}
+
+.api-error {
+  color: #a51d1d;
+  font-size: 0.875rem;
+}
+
+.submit-button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}

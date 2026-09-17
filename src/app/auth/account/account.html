@@ -1,0 +1,35 @@
+<app-navbar>
+</app-navbar>
+
+<main>
+  <h1>Your account</h1>
+
+  @if (isLoading()) {
+    <p>Loading account…</p>
+  } @else if (errorMessage()) {
+    <p role="alert">{{ errorMessage() }}</p>
+    <a routerLink="/login">Return to sign in</a>
+  } @else {
+    @if (user(); as currentUser) {
+      <dl>
+        <dt>Name</dt>
+        <dd>
+          {{ currentUser.firstName }}
+          {{ currentUser.lastName }}
+        </dd>
+
+        <dt>Email</dt>
+        <dd>{{ currentUser.email }}</dd>
+
+        <dt>Roles</dt>
+        <dd>
+          {{
+            currentUser.platformRoles.length
+              ? currentUser.platformRoles.join(', ')
+              : 'User'
+          }}
+        </dd>
+      </dl>
+    }
+  }
+</main>

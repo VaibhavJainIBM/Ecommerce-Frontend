@@ -1,0 +1,44 @@
+:host {
+  display: block;
+  border-bottom: 1px solid #deded8;
+}
+
+.navbar {
+  min-height: 4rem;
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  color: #161616;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+nav {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+nav a,
+nav button {
+  color: #333;
+  font: inherit;
+  text-decoration: none;
+}
+
+nav button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+nav a:hover,
+nav button:hover {
+  text-decoration: underline;
+}
