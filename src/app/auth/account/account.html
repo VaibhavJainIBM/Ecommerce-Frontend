@@ -1,35 +1,66 @@
-<app-navbar>
-</app-navbar>
+<app-navbar></app-navbar>
 
-<main>
-  <h1>Your account</h1>
+<main class="accountPage">
+  <header class="pageHeader">
+    <div>
+      <p class="eyebrow">Account</p>
+      <h1>Your account</h1>
+    </div>
+
+    <button
+      type="button"
+      [disabled]="isLoading()"
+      (click)="load()"
+    >
+      Refresh
+    </button>
+  </header>
 
   @if (isLoading()) {
-    <p>Loading account…</p>
-  } @else if (errorMessage()) {
-    <p role="alert">{{ errorMessage() }}</p>
-    <a routerLink="/login">Return to sign in</a>
-  } @else {
-    @if (user(); as currentUser) {
+    <p>Loading</p>
+  }
+
+  @if (errorMessage()) {
+    <p class="message error" role="alert">
+      {{ errorMessage() }}
+    </p>
+  }
+
+  @if (user(); as currentUser) {
+    <section>
       <dl>
-        <dt>Name</dt>
-        <dd>
-          {{ currentUser.firstName }}
-          {{ currentUser.lastName }}
-        </dd>
+        <div>
+          <dt>Name</dt>
+          <dd>
+            {{ currentUser.firstName }}
+            {{ currentUser.lastName }}
+          </dd>
+        </div>
 
-        <dt>Email</dt>
-        <dd>{{ currentUser.email }}</dd>
+        <div>
+          <dt>Email</dt>
+          <dd>{{ currentUser.email }}</dd>
+        </div>
 
-        <dt>Roles</dt>
-        <dd>
-          {{
-            currentUser.platformRoles.length
-              ? currentUser.platformRoles.join(', ')
-              : 'User'
-          }}
-        </dd>
+        <div>
+          <dt>Role</dt>
+          <dd>{{ roleLabel(currentUser) }}</dd>
+        </div>
       </dl>
-    }
+
+      <div class="actions">
+        @if (
+          currentUser.platformRoles.includes(roles.Admin)
+        ) {
+          <a routerLink="/admin">Admin dashboard</a>
+        } @else {
+          <a routerLink="/seller">Seller accounts</a>
+        }
+
+        <a routerLink="/">Shop</a>
+      </div>
+    </section>
+  } @else if (!isLoading()) {
+    <a routerLink="/login">Sign in</a>
   }
 </main>

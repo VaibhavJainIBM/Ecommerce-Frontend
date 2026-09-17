@@ -5,10 +5,10 @@
     <a routerLink="/">Shop</a>
 
     @if (authSession.isAuthenticated()) {
-      <a routerLink="/seller">Seller</a>
-
       @if (authSession.hasRole(roles.Admin)) {
         <a routerLink="/admin">Admin</a>
+      } @else {
+        <a routerLink="/seller">Seller</a>
       }
 
       <a routerLink="/account">

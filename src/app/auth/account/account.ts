@@ -7,8 +7,12 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthApi } from '../auth-api';
-import { AuthUser } from '../auth.models';
+import {
+  AuthUser,
+  Roles,
+} from '../auth.models';
 import { Navbar } from '../../shared/navbar/navbar';
+import { AuthSession } from '../auth-session';
 
 
 
@@ -20,12 +24,23 @@ import { Navbar } from '../../shared/navbar/navbar';
 })
 export class Account implements OnInit {
   private readonly authApi = inject(AuthApi);
+  private readonly authSession = inject(AuthSession);
 
-  protected readonly user = signal<AuthUser | null>(null);
+  protected readonly roles = Roles;
+  protected readonly user = signal<AuthUser | null>(
+    this.authSession.user(),
+  );
   protected readonly isLoading = signal(true);
   protected readonly errorMessage = signal('');
 
   ngOnInit(): void {
+    this.load();
+  }
+
+  protected load(): void {
+    this.isLoading.set(true);
+    this.errorMessage.set('');
+
     this.authApi.getCurrentUser().subscribe({
       next: (user) => {
         this.user.set(user);
@@ -46,5 +61,11 @@ export class Account implements OnInit {
         this.isLoading.set(false);
       },
     });
+  }
+
+  protected roleLabel(user: AuthUser): string {
+    return user.platformRoles.length > 0
+      ? user.platformRoles.join(', ')
+      : 'User';
   }
 }

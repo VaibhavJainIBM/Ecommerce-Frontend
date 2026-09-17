@@ -1,0 +1,113 @@
+:host {
+  display: block;
+}
+
+.accountPage {
+  width: min(44rem, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 2rem 0 4rem;
+}
+
+.pageHeader {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgb(215, 215, 210);
+}
+
+.eyebrow {
+  margin: 0 0 0.5rem;
+  color: rgb(80, 80, 76);
+  font-size: 0.8rem;
+}
+
+h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+section {
+  margin-top: 1.5rem;
+}
+
+button,
+.actions a {
+  min-height: 2.4rem;
+  padding: 0.5rem 0.65rem;
+  color: rgb(24, 24, 24);
+  background: white;
+  border: 1px solid rgb(165, 165, 160);
+  border-radius: 0;
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+dl {
+  margin: 0;
+  border-top: 1px solid rgb(215, 215, 210);
+}
+
+dl div {
+  display: grid;
+  grid-template-columns: 9rem minmax(0, 1fr);
+  gap: 1rem;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid rgb(220, 220, 215);
+}
+
+dt {
+  color: rgb(80, 80, 76);
+}
+
+dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.actions a {
+  text-decoration: none;
+}
+
+.actions a:hover {
+  text-decoration: underline;
+}
+
+.message {
+  padding: 0.75rem;
+  border-left: 2px solid;
+}
+
+.error {
+  color: rgb(145, 25, 25);
+}
+
+@media (max-width: 34rem) {
+  .pageHeader {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  dl div {
+    grid-template-columns: 1fr;
+    gap: 0.3rem;
+  }
+}

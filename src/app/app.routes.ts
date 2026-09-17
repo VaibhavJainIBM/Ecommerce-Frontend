@@ -23,6 +23,7 @@ import { SellerInventory } from './seller/seller-inventory/seller-inventory';
 import { SellerOrders } from './seller/seller-orders/seller-orders';
 import { SellerTeam } from './seller/seller-team/seller-team';
 import { sellerRoleGuard } from './seller/seller-role-guard';
+import { sellerAreaGuard } from './seller/seller-area-guard';
 
 
 export const routes: Routes = [
@@ -83,7 +84,7 @@ export const routes: Routes = [
     path: 'seller',
     component: SellerDashboard,
     title: 'Seller | CartCraft',
-    canActivate: [authGuard],
+    canActivate: [authGuard, sellerAreaGuard],
   },
   {
     path: 'forbidden',
@@ -94,9 +95,13 @@ export const routes: Routes = [
 
 
   {
-  path: 'seller/:sellerId',
+    path: 'seller/:sellerId',
     component: SellerWorkspace,
-    canActivate: [authGuard, sellerAccessGuard],
+    canActivate: [
+      authGuard,
+      sellerAreaGuard,
+      sellerAccessGuard,
+    ],
     children: [
       {
         path: '',

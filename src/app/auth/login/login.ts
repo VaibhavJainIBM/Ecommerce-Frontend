@@ -67,6 +67,31 @@ export class Login {
     return '/account';
   }
 
+  private getDestination(
+    roles: string[],
+    returnUrl: string | null,
+  ): string {
+    const isAdmin = roles.includes(Roles.Admin);
+
+    if (
+      !returnUrl ||
+      !returnUrl.startsWith('/') ||
+      returnUrl.startsWith('//')
+    ) {
+      return this.getDefaultRoute(roles);
+    }
+
+    if (isAdmin && returnUrl.startsWith('/seller')) {
+      return '/admin';
+    }
+
+    if (!isAdmin && returnUrl.startsWith('/admin')) {
+      return '/account';
+    }
+
+    return returnUrl;
+  }
+
 
     protected onSubmit(): void {
       this.errorMessage.set('');
@@ -88,9 +113,10 @@ export class Login {
           const returnUrl =
             this.route.snapshot.queryParamMap.get('returnUrl');
 
-          const destination =
-            returnUrl ||
-            this.getDefaultRoute(response.platformRoles);
+          const destination = this.getDestination(
+            response.platformRoles,
+            returnUrl,
+          );
 
           void this.router.navigateByUrl(destination);
         },
