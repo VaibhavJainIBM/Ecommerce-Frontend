@@ -90,3 +90,56 @@ export interface UpdateSellerListingPriceRequest {
 export interface SellerListingRowVersionRequest {
   rowVersion: string;
 }
+
+export interface ShippingAddress {
+  line1: string;
+  city: string;
+  stateOrProvince: string;
+  postalCode: string;
+  countryCode: string;
+  line2: string | null;
+}
+
+export interface SellerOrderItem {
+  orderItemId: string;
+  sellerId: string;
+  sellerDisplayName: string;
+
+  listingId: string;
+  productVariantId: string;
+
+  productTitle: string;
+  variantName: string;
+  sellerSku: string;
+
+  unitPriceAmount: number;
+  currencyCode: string;
+  quantity: number;
+  lineTotal: number;
+}
+
+export interface SellerOrder {
+  orderId: string;
+  orderNumber: string;
+  status: string;
+
+  sellerSubtotal: number;
+  currencyCode: string;
+
+  recipientName: string;
+  phone: string;
+
+  shippingAddress: ShippingAddress;
+
+  items: SellerOrderItem[];
+
+  createdAtUtc: string;
+  expiresAtUtc: string;
+}
+
+export interface PagedSellerOrders {
+  items: SellerOrder[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+}

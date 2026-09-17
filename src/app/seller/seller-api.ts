@@ -9,6 +9,7 @@ import {
   CreateSellerListingRequest,
   MySeller,
   PagedSellerListings,
+  PagedSellerOrders,
   SellerListing,
   SellerListingQuery,
   SellerListingRowVersionRequest,
@@ -99,4 +100,22 @@ export class SellerApi {
       request,
     );
   }
+
+  getOrders(
+    sellerId: string,
+    page = 1,
+    pageSize = 20,
+  ): Observable<PagedSellerOrders> {
+    const params = new HttpParams()
+      .set('page', String(page))
+      .set('pageSize', String(pageSize));
+
+    return this.http.get<PagedSellerOrders>(
+      `${this.sellersUrl}/${sellerId}/orders`,
+      { params },
+    );
+  }
+
+
+
 }
