@@ -8,6 +8,10 @@ import { roleGuard } from './auth/role-guard';
 import { Roles } from './auth/auth.models';
 import { Forbidden } from './auth/forbidden/forbidden';
 import { AdminDashboard } from './admin/admin-dashboard/admin-dashboard';
+import { AdminOverview } from './admin/admin-overview/admin-overview';
+import { AdminCatalog } from './admin/admin-catalog/admin-catalog';
+import { AdminSellerReviews } from './admin/admin-seller-reviews/admin-seller-reviews';
+import { AdminListingReviews } from './admin/admin-listing-reviews/admin-listing-reviews';
 import { SellerDashboard } from './seller/seller-dashboard/seller-dashboard';
 
 import { sellerAccessGuard } from './seller/seller-access-guard';
@@ -18,6 +22,7 @@ import { SellerWarehouses } from './seller/seller-warehouses/seller-warehouses';
 import { SellerInventory } from './seller/seller-inventory/seller-inventory';
 import { SellerOrders } from './seller/seller-orders/seller-orders';
 import { SellerTeam } from './seller/seller-team/seller-team';
+import { sellerRoleGuard } from './seller/seller-role-guard';
 
 
 export const routes: Routes = [
@@ -46,6 +51,33 @@ export const routes: Routes = [
     data: {
       roles: [Roles.Admin],
     },
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'overview',
+      },
+      {
+        path: 'overview',
+        component: AdminOverview,
+        title: 'Admin overview | CartCraft',
+      },
+      {
+        path: 'catalog',
+        component: AdminCatalog,
+        title: 'Admin catalog | CartCraft',
+      },
+      {
+        path: 'sellers',
+        component: AdminSellerReviews,
+        title: 'Seller reviews | CartCraft',
+      },
+      {
+        path: 'listings',
+        component: AdminListingReviews,
+        title: 'Listing reviews | CartCraft',
+      },
+    ],
   },
   {
     path: 'seller',
@@ -80,26 +112,54 @@ export const routes: Routes = [
         path: 'listings',
         component: SellerListings,
         title: 'Listings | CartCraft',
+        canActivate: [sellerRoleGuard],
+        data: {
+          sellerRoles: ['Owner', 'Manager'],
+        },
       },
       {
         path: 'warehouses',
         component: SellerWarehouses,
         title: 'Warehouses | CartCraft',
+        canActivate: [sellerRoleGuard],
+        data: {
+          sellerRoles: [
+            'Owner',
+            'Manager',
+            'WarehouseStaff',
+          ],
+        },
       },
       {
         path: 'inventory',
         component: SellerInventory,
         title: 'Inventory | CartCraft',
+        canActivate: [sellerRoleGuard],
+        data: {
+          sellerRoles: [
+            'Owner',
+            'Manager',
+            'WarehouseStaff',
+          ],
+        },
       },
       {
         path: 'orders',
         component: SellerOrders,
         title: 'Orders | CartCraft',
+        canActivate: [sellerRoleGuard],
+        data: {
+          sellerRoles: ['Owner', 'Manager'],
+        },
       },
       {
         path: 'team',
         component: SellerTeam,
         title: 'Seller team | CartCraft',
+        canActivate: [sellerRoleGuard],
+        data: {
+          sellerRoles: ['Owner'],
+        },
       },
     ],
   },

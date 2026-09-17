@@ -1,0 +1,303 @@
+<header class="pageHeader">
+  <div>
+    <h2>Catalog</h2>
+    <p class="muted">{{ totalCount() }} products</p>
+  </div>
+
+  <button
+    type="button"
+    [disabled]="isLoading()"
+    (click)="loadProducts(page())"
+  >
+    Refresh
+  </button>
+</header>
+
+@if (errorMessage()) {
+  <p class="message error" role="alert">
+    {{ errorMessage() }}
+  </p>
+}
+
+@if (successMessage()) {
+  <p class="message success" role="status">
+    {{ successMessage() }}
+  </p>
+}
+
+<section>
+  <h3>Create product</h3>
+
+  <form
+    class="productForm"
+    [formGroup]="productForm"
+    (ngSubmit)="createProduct()"
+  >
+    <div class="formGrid">
+      <label>
+        Title
+        <input
+          type="text"
+          formControlName="title"
+          maxlength="250"
+        />
+      </label>
+
+      <label>
+        Brand
+        <input
+          type="text"
+          formControlName="brandName"
+          maxlength="150"
+        />
+      </label>
+    </div>
+
+    <label>
+      Description
+      <textarea
+        formControlName="description"
+        maxlength="4000"
+      ></textarea>
+    </label>
+
+    <div class="sectionHeader">
+      <h4>Variants</h4>
+
+      <button
+        type="button"
+        [disabled]="variants.length >= 100"
+        (click)="addVariant()"
+      >
+        Add variant
+      </button>
+    </div>
+
+    <div formArrayName="variants" class="variantList">
+      @for (
+        variant of variants.controls;
+        track $index
+      ) {
+        <div
+          class="variantRow"
+          [formGroupName]="$index"
+        >
+          <div class="variantFields">
+            <label>
+              Name
+              <input
+                type="text"
+                formControlName="name"
+                maxlength="150"
+              />
+            </label>
+
+            <label>
+              Code
+              <input
+                type="text"
+                formControlName="variantCode"
+                maxlength="64"
+              />
+            </label>
+
+            <label>
+              GTIN
+              <input
+                type="text"
+                formControlName="gtin"
+                inputmode="numeric"
+                maxlength="14"
+              />
+            </label>
+          </div>
+
+          @if (variants.length > 1) {
+            <button
+              type="button"
+              (click)="removeVariant($index)"
+            >
+              Remove
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <button
+      type="submit"
+      [disabled]="isCreating()"
+    >
+      {{ isCreating() ? 'Creating' : 'Create product' }}
+    </button>
+  </form>
+</section>
+
+<section>
+  <div class="sectionHeader">
+    <h3>Import CSV</h3>
+
+    <button
+      type="button"
+      (click)="downloadTemplate()"
+    >
+      Download template
+    </button>
+  </div>
+
+  <form class="importForm" (ngSubmit)="importCatalog()">
+    <label>
+      CSV file
+      <input
+        type="file"
+        accept=".csv,text/csv"
+        (change)="chooseFile($event)"
+      />
+    </label>
+
+    <label class="checkLabel">
+      <input
+        type="checkbox"
+        [checked]="activateImport()"
+        (change)="changeImportActivation($event)"
+      />
+      Activate imported products
+    </label>
+
+    <button
+      type="submit"
+      [disabled]="isImporting() || !selectedFile()"
+    >
+      {{ isImporting() ? 'Importing' : 'Import' }}
+    </button>
+  </form>
+
+  @if (importResult(); as result) {
+    <p>
+      {{ result.rowsProcessed }} rows,
+      {{ result.productsCreated }} products,
+      {{ result.variantsCreated }} variants
+    </p>
+  }
+</section>
+
+<section>
+  <h3>Products</h3>
+
+  <form
+    class="filterForm"
+    (ngSubmit)="loadProducts(1)"
+  >
+    <label>
+      Search
+      <input
+        type="search"
+        [formControl]="search"
+        maxlength="100"
+      />
+    </label>
+
+    <label>
+      Status
+      <select
+        [value]="status()"
+        (change)="changeStatus($event)"
+      >
+        <option value="">All</option>
+
+        @for (item of statuses; track item) {
+          <option [value]="item">{{ item }}</option>
+        }
+      </select>
+    </label>
+
+    <button type="submit" [disabled]="isLoading()">
+      Search
+    </button>
+  </form>
+
+  @if (isLoading()) {
+    <p>Loading</p>
+  } @else if (products().length === 0) {
+    <p>No products</p>
+  } @else {
+    <div class="records">
+      @for (
+        product of products();
+        track product.productId
+      ) {
+        <article class="record">
+          <div class="recordHeader">
+            <div>
+              <h4>
+                {{ product.brandName }}
+                {{ product.title }}
+              </h4>
+              <small>
+                {{ product.status }}
+                ·
+                {{ product.createdAtUtc | date: 'mediumDate' }}
+              </small>
+            </div>
+
+            @if (product.status === 'Draft') {
+              <button
+                type="button"
+                [disabled]="busyProductId() !== null"
+                (click)="activate(product)"
+              >
+                {{
+                  busyProductId() === product.productId
+                    ? 'Activating'
+                    : 'Activate'
+                }}
+              </button>
+            }
+          </div>
+
+          @if (product.description) {
+            <p>{{ product.description }}</p>
+          }
+
+          <ul class="variants">
+            @for (
+              variant of product.variants;
+              track variant.variantId
+            ) {
+              <li>
+                <strong>{{ variant.name }}</strong>
+                <span>{{ variant.variantCode }}</span>
+                <span>{{ variant.status }}</span>
+                @if (variant.gtin) {
+                  <span>{{ variant.gtin }}</span>
+                }
+              </li>
+            }
+          </ul>
+        </article>
+      }
+    </div>
+
+    @if (totalPages() > 1) {
+      <div class="pagination">
+        <button
+          type="button"
+          [disabled]="page() <= 1"
+          (click)="loadProducts(page() - 1)"
+        >
+          Previous
+        </button>
+
+        <span>{{ page() }} of {{ totalPages() }}</span>
+
+        <button
+          type="button"
+          [disabled]="page() >= totalPages()"
+          (click)="loadProducts(page() + 1)"
+        >
+          Next
+        </button>
+      </div>
+    }
+  }
+</section>

@@ -88,7 +88,7 @@ input {
 
 input:focus {
   border-color: #171717;
-  box-shadow: 0 0 0 1px #171717;
+  outline: 1px solid #171717;
 }
 
 input[aria-invalid='true'] {

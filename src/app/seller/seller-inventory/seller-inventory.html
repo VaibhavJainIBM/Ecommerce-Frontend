@@ -1,1 +1,257 @@
-<p>seller-inventory works!</p>
+<header class="pageHeader">
+  <h2>Inventory</h2>
+
+  <button
+    type="button"
+    [disabled]="isLoading()"
+    (click)="load()"
+  >
+    Refresh
+  </button>
+</header>
+
+@if (errorMessage()) {
+  <p class="message error" role="alert">
+    {{ errorMessage() }}
+  </p>
+}
+
+@if (successMessage()) {
+  <p class="message success" role="status">
+    {{ successMessage() }}
+  </p>
+}
+
+@if (sellerContext.canManage()) {
+  <section>
+    <h3>Create inventory item</h3>
+
+    <form
+      class="createForm"
+      [formGroup]="createForm"
+      (ngSubmit)="createInventory()"
+    >
+      <label>
+        Warehouse
+        <select formControlName="warehouseId">
+          <option value="">Select</option>
+
+          @for (
+            warehouse of warehouses();
+            track warehouse.warehouseId
+          ) {
+            <option
+              [value]="warehouse.warehouseId"
+            >
+              {{ warehouse.name }}
+              {{ warehouse.code }}
+            </option>
+          }
+        </select>
+      </label>
+
+      <label>
+        Listing
+        <select formControlName="sellerListingId">
+          <option value="">Select</option>
+
+          @for (
+            listing of listingOptions();
+            track listing.listingId
+          ) {
+            <option [value]="listing.listingId">
+              {{ listing.productTitle }}
+              {{ listing.variantName }}
+              {{ listing.sellerSku }}
+            </option>
+          }
+        </select>
+      </label>
+
+      <label>
+        Initial quantity
+        <input
+          type="number"
+          formControlName="initialQuantity"
+          min="0"
+          step="1"
+        />
+      </label>
+
+      <button
+        type="submit"
+        [disabled]="
+          isSaving() ||
+          !canCreateInventory()
+        "
+      >
+        {{ isSaving() ? 'Saving' : 'Create' }}
+      </button>
+    </form>
+  </section>
+}
+
+<section>
+  <h3>Stock</h3>
+
+  @if (isLoading()) {
+    <p>Loading</p>
+  } @else if (inventory().length === 0) {
+    <p>No inventory</p>
+  } @else {
+    <div class="tableWrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Warehouse</th>
+            <th>SKU</th>
+            <th>On hand</th>
+            <th>Reserved</th>
+            <th>Available</th>
+            <th>Receive</th>
+            <th>Adjust</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (
+            item of inventory();
+            track item.inventoryItemId
+          ) {
+            <tr>
+              <td data-label="Warehouse">
+                {{ item.warehouseName }}
+                <small>{{ item.warehouseCode }}</small>
+              </td>
+              <td data-label="SKU">{{ item.sellerSku }}</td>
+              <td data-label="On hand">
+                {{ item.onHandQuantity }}
+              </td>
+              <td data-label="Reserved">
+                {{ item.reservedQuantity }}
+              </td>
+              <td data-label="Available">
+                {{ item.availableQuantity }}
+              </td>
+              <td data-label="Receive">
+                <div class="quantityAction">
+                  <input
+                    type="number"
+                    min="1"
+                    step="1"
+                    value="1"
+                    (input)="
+                      changeQuantityDraft(
+                        item,
+                        'receive',
+                        $event
+                      )
+                    "
+                  />
+
+                  <button
+                    type="button"
+                    [disabled]="
+                      busyItemId() !== null ||
+                      !sellerIsActive()
+                    "
+                    (click)="receive(item)"
+                  >
+                    Receive
+                  </button>
+                </div>
+              </td>
+              <td data-label="Adjust">
+                <div class="quantityAction">
+                  <input
+                    type="number"
+                    [min]="item.reservedQuantity"
+                    step="1"
+                    [value]="item.onHandQuantity"
+                    (input)="
+                      changeQuantityDraft(
+                        item,
+                        'adjust',
+                        $event
+                      )
+                    "
+                  />
+
+                  <button
+                    type="button"
+                    [disabled]="
+                      busyItemId() !== null ||
+                      !sellerIsActive()
+                    "
+                    (click)="adjust(item)"
+                  >
+                    Set
+                  </button>
+                </div>
+              </td>
+              <td data-label="Details">
+                <button
+                  type="button"
+                  (click)="
+                    loadItem(item.inventoryItemId)
+                  "
+                >
+                  Open
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
+
+@if (selectedItem(); as item) {
+  <section>
+    <div class="sectionHeader">
+      <h3>Inventory details</h3>
+
+      <button
+        type="button"
+        (click)="selectedItem.set(null)"
+      >
+        Close
+      </button>
+    </div>
+
+    <dl>
+      <div>
+        <dt>Warehouse</dt>
+        <dd>{{ item.warehouseName }}</dd>
+      </div>
+      <div>
+        <dt>Warehouse code</dt>
+        <dd>{{ item.warehouseCode }}</dd>
+      </div>
+      <div>
+        <dt>SKU</dt>
+        <dd>{{ item.sellerSku }}</dd>
+      </div>
+      <div>
+        <dt>On hand</dt>
+        <dd>{{ item.onHandQuantity }}</dd>
+      </div>
+      <div>
+        <dt>Reserved</dt>
+        <dd>{{ item.reservedQuantity }}</dd>
+      </div>
+      <div>
+        <dt>Available</dt>
+        <dd>{{ item.availableQuantity }}</dd>
+      </div>
+      <div>
+        <dt>Created</dt>
+        <dd>
+          {{ item.createdAtUtc | date: 'medium' }}
+        </dd>
+      </div>
+    </dl>
+  </section>
+}

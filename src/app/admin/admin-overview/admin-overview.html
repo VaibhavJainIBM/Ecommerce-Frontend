@@ -1,0 +1,55 @@
+<header class="pageHeader">
+  <h2>Overview</h2>
+
+  <button
+    type="button"
+    [disabled]="isLoading()"
+    (click)="load()"
+  >
+    Refresh
+  </button>
+</header>
+
+@if (errorMessage()) {
+  <p class="message error" role="alert">
+    {{ errorMessage() }}
+  </p>
+}
+
+@if (isLoading()) {
+  <p>Loading</p>
+} @else {
+  <div class="summaryGrid">
+    <a routerLink="/admin/sellers">
+      <span>{{ pendingSellers() }}</span>
+      Sellers under review
+    </a>
+
+    <a routerLink="/admin/listings">
+      <span>{{ pendingListings() }}</span>
+      Listings awaiting review
+    </a>
+
+    <a routerLink="/admin/catalog">
+      <span>{{ draftProducts() }}</span>
+      Draft products
+    </a>
+  </div>
+}
+
+@if (profile(); as admin) {
+  <section>
+    <h3>Administrator</h3>
+
+    <dl>
+      <div>
+        <dt>Email</dt>
+        <dd>{{ admin.email }}</dd>
+      </div>
+      <div>
+        <dt>Roles</dt>
+        <dd>{{ admin.platformRoles.join(', ') }}</dd>
+      </div>
+    </dl>
+  </section>
+}

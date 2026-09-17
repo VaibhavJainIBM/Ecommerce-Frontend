@@ -3,52 +3,106 @@
 }
 
 html {
-  color: #171717;
-  background: #ffffff;
+  max-width: 100%;
+  color: rgb(24, 24, 24);
+  background: white;
   font-family: Arial, Helvetica, sans-serif;
 }
 
 body {
-  min-width: 20rem;
+  max-width: 100%;
+  min-width: 0;
   margin: 0;
+  overflow-x: clip;
 }
 
-button {
+button,
+input,
+select,
+textarea {
   font: inherit;
 }
 
-
 .content-page {
-  width: min(42rem, calc(100% - 2rem));
-  margin-inline: auto;
-  padding-block: clamp(3rem, 8vw, 6rem);
+  width: min(50rem, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 2rem 0 4rem;
 }
 
 .content-page .eyebrow {
-  margin: 0 0 0.75rem;
-  color: #73736d;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  margin: 0 0 0.5rem;
+  color: rgb(80, 80, 76);
+  font-size: 0.8rem;
 }
 
 .content-page h1 {
   margin: 0;
-  font-size: clamp(2.25rem, 7vw, 3.75rem);
-  font-weight: 500;
-  letter-spacing: -0.05em;
-  line-height: 1;
+  font-size: 2rem;
+  font-weight: 600;
 }
 
 .content-page h1 + p {
-  margin-top: 1.5rem;
-  color: #63635e;
-  line-height: 1.6;
+  margin-top: 1rem;
+  color: rgb(70, 70, 67);
+  line-height: 1.5;
 }
 
 .content-page a {
-  display: inline-block;
-  margin-top: 1rem;
-  color: #171717;
+  color: rgb(24, 24, 24);
+}
+
+@media (max-width: 48rem) {
+  .tableWrap table,
+  .tableWrap tbody,
+  .tableWrap tr,
+  .tableWrap td {
+    display: block;
+    width: 100%;
+  }
+
+  .tableWrap table {
+    table-layout: fixed;
+  }
+
+  .tableWrap thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .tableWrap tr {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgb(210, 210, 205);
+  }
+
+  .tableWrap td {
+    display: grid;
+    grid-template-columns:
+      minmax(6rem, 9rem) minmax(0, 1fr);
+    gap: 0.75rem;
+    align-items: start;
+    padding: 0.45rem 0;
+    border: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .tableWrap td::before {
+    content: attr(data-label);
+    color: rgb(80, 80, 76);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+}
+
+@media (max-width: 24rem) {
+  .tableWrap td {
+    grid-template-columns: 1fr;
+    gap: 0.2rem;
+  }
 }

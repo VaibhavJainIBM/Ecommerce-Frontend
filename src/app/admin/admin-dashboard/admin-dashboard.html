@@ -1,11 +1,47 @@
 <app-navbar></app-navbar>
 
-<main class="content-page">
-  <p class="eyebrow">Administration</p>
-  <h1>Admin dashboard</h1>
+<main class="workspacePage">
+  <header class="workspaceHeader">
+    <h1>Admin dashboard</h1>
+    <span>{{ authSession.user()?.email }}</span>
+  </header>
 
-  <p>
-    Manage users, sellers, listings, and platform
-    operations.
-  </p>
+  <div class="workspaceLayout">
+    <nav
+      class="workspaceNav"
+      aria-label="Admin navigation"
+    >
+      <a
+        routerLink="/admin/overview"
+        routerLinkActive="active"
+      >
+        Overview
+      </a>
+
+      <a
+        routerLink="/admin/catalog"
+        routerLinkActive="active"
+      >
+        Catalog
+      </a>
+
+      <a
+        routerLink="/admin/sellers"
+        routerLinkActive="active"
+      >
+        Sellers
+      </a>
+
+      <a
+        routerLink="/admin/listings"
+        routerLinkActive="active"
+      >
+        Listings
+      </a>
+    </nav>
+
+    <section class="workspaceContent">
+      <router-outlet></router-outlet>
+    </section>
+  </div>
 </main>

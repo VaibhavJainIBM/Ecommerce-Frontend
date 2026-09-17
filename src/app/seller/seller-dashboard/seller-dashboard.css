@@ -1,48 +1,117 @@
-.seller-list {
-  margin-top: 2rem;
-  border-top: 1px solid #deded8;
+:host {
+  display: block;
 }
 
-.seller-row {
-  padding-block: 1.5rem;
-  border-bottom: 1px solid #deded8;
+.sellerPage {
+  width: min(72rem, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 2rem 0 4rem;
 }
 
-.seller-row h2 {
+.pageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+h1,
+h2 {
   margin: 0;
-  font-size: 1.25rem;
   font-weight: 600;
 }
 
-.seller-row > p {
-  color: #63635e;
+h1 {
+  font-size: 2rem;
 }
 
-dl {
+h2 {
+  font-size: 1.1rem;
+}
+
+section {
+  padding-top: 1.5rem;
+  margin-top: 1.5rem;
+  border-top: 1px solid rgb(215, 215, 210);
+}
+
+.simpleForm {
   display: grid;
-  grid-template-columns: 10rem 1fr;
-  gap: 0.5rem 1rem;
-  margin-block: 1.5rem;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 1rem;
+  align-items: end;
+  margin-top: 1rem;
 }
 
-dt {
-  color: #73736d;
+label {
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 600;
 }
 
-dd {
-  margin: 0;
+input,
+button {
+  min-height: 2.5rem;
+  padding: 0.55rem 0.7rem;
+  color: rgb(24, 24, 24);
+  background: white;
+  border: 1px solid rgb(165, 165, 160);
+  border-radius: 0;
+  font: inherit;
 }
 
-.access-message {
-  color: #215c39;
+button {
+  cursor: pointer;
 }
 
-.restricted-message {
-  color: #8a3b12;
+button:disabled {
+  cursor: default;
+  opacity: 0.55;
 }
 
-.workspace-link {
-  display: inline-block;
-  color: #171717;
+a {
+  color: rgb(24, 24, 24);
+}
+
+.message {
+  padding: 0.75rem;
+  border-left: 2px solid;
+}
+
+.error {
+  color: rgb(145, 25, 25);
+}
+
+.success {
+  color: rgb(30, 100, 55);
+}
+
+.tableWrap {
+  margin-top: 1rem;
+  min-width: 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 0.8rem;
+  border-bottom: 1px solid rgb(220, 220, 215);
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  font-size: 0.75rem;
   font-weight: 700;
+}
+
+@media (max-width: 44rem) {
+  .simpleForm {
+    grid-template-columns: 1fr;
+  }
 }

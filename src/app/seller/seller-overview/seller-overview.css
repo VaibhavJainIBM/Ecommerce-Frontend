@@ -1,0 +1,71 @@
+:host {
+  display: block;
+}
+.pageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+button {
+  min-height: 2.5rem;
+  padding: 0.55rem 0.8rem;
+  color: white;
+  background: rgb(25, 25, 25);
+  border: 1px solid rgb(25, 25, 25);
+  border-radius: 0;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+dl {
+  margin-top: 1.5rem;
+  border-top: 1px solid rgb(215, 215, 210);
+}
+
+dl div {
+  display: grid;
+  grid-template-columns: 12rem 1fr;
+  gap: 1rem;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid rgb(220, 220, 215);
+}
+
+dt {
+  color: rgb(80, 80, 76);
+}
+
+dd {
+  margin: 0;
+}
+
+.message {
+  padding: 0.75rem;
+  border-left: 2px solid;
+}
+
+.error {
+  color: rgb(145, 25, 25);
+}
+
+.success {
+  color: rgb(30, 100, 55);
+}
+
+@media (max-width: 36rem) {
+  dl div {
+    grid-template-columns: 1fr;
+    gap: 0.3rem;
+  }
+}

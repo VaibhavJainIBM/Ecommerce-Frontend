@@ -5,7 +5,10 @@ import {
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { PagedCatalogProducts } from './catalog.models';
+import {
+  CatalogProduct,
+  PagedCatalogProducts,
+} from './catalog.models';
 
 @Injectable({
   providedIn: 'root',
@@ -25,15 +28,23 @@ export class ProductApi {
       .set('page', String(page))
       .set('pageSize', String(pageSize));
 
-    const searchTerm = search.trim();
+    const term = search.trim();
 
-    if (searchTerm) {
-      params = params.set('search', searchTerm);
+    if (term) {
+      params = params.set('search', term);
     }
 
     return this.http.get<PagedCatalogProducts>(
       this.apiUrl,
       { params },
+    );
+  }
+
+  getProduct(
+    productId: string,
+  ): Observable<CatalogProduct> {
+    return this.http.get<CatalogProduct>(
+      `${this.apiUrl}/${productId}`,
     );
   }
 }

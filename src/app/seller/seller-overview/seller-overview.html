@@ -1,1 +1,80 @@
-<p>seller-overview works!</p>
+@if (sellerContext.selected(); as seller) {
+  <header class="pageHeader">
+    <h2>Overview</h2>
+
+    @if (canSubmit()) {
+      <button
+        type="button"
+        [disabled]="isSaving()"
+        (click)="submitForReview()"
+      >
+        {{
+          isSaving()
+            ? 'Submitting'
+            : 'Submit for review'
+        }}
+      </button>
+    }
+  </header>
+
+  @if (errorMessage()) {
+    <p class="message error" role="alert">
+      {{ errorMessage() }}
+    </p>
+  }
+
+  @if (successMessage()) {
+    <p class="message success" role="status">
+      {{ successMessage() }}
+    </p>
+  }
+
+  <dl>
+    <div>
+      <dt>Display name</dt>
+      <dd>{{ seller.displayName }}</dd>
+    </div>
+
+    <div>
+      <dt>Legal business name</dt>
+      <dd>{{ seller.legalBusinessName }}</dd>
+    </div>
+
+    <div>
+      <dt>Seller status</dt>
+      <dd>{{ seller.sellerStatus }}</dd>
+    </div>
+
+    <div>
+      <dt>Membership status</dt>
+      <dd>{{ seller.memberStatus }}</dd>
+    </div>
+
+    <div>
+      <dt>Roles</dt>
+      <dd>{{ seller.roles.join(', ') }}</dd>
+    </div>
+
+    <div>
+      <dt>Created</dt>
+      <dd>
+        {{
+          seller.sellerCreatedAtUtc
+            | date: 'mediumDate'
+        }}
+      </dd>
+    </div>
+
+    @if (seller.approvedAtUtc) {
+      <div>
+        <dt>Approved</dt>
+        <dd>
+          {{
+            seller.approvedAtUtc
+              | date: 'mediumDate'
+          }}
+        </dd>
+      </div>
+    }
+  </dl>
+}

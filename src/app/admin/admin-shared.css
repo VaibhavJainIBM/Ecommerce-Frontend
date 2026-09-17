@@ -1,0 +1,240 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.pageHeader,
+.sectionHeader,
+.pagination,
+.actions,
+.inlineFields {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.pageHeader,
+.sectionHeader,
+.pagination {
+  justify-content: space-between;
+}
+
+h2,
+h3,
+h4,
+p {
+  overflow-wrap: anywhere;
+}
+
+h2,
+h3,
+h4 {
+  margin: 0;
+  font-weight: 600;
+}
+
+h2 {
+  font-size: 1.5rem;
+}
+
+h3 {
+  font-size: 1.05rem;
+}
+
+h4 {
+  font-size: 1rem;
+}
+
+section {
+  padding-top: 1.5rem;
+  margin-top: 1.5rem;
+  border-top: 1px solid rgb(215, 215, 210);
+}
+
+form {
+  min-width: 0;
+}
+
+.formGrid,
+.filterForm,
+.variantFields {
+  display: grid;
+  grid-template-columns:
+    repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  gap: 1rem;
+  align-items: end;
+}
+
+.filterForm {
+  margin-top: 1rem;
+}
+
+label {
+  display: grid;
+  min-width: 0;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+input,
+select,
+textarea,
+button,
+.buttonLink {
+  min-width: 0;
+  min-height: 2.4rem;
+  padding: 0.5rem 0.65rem;
+  color: rgb(24, 24, 24);
+  background: white;
+  border: 1px solid rgb(165, 165, 160);
+  border-radius: 0;
+  font: inherit;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+}
+
+textarea {
+  min-height: 6rem;
+  resize: vertical;
+}
+
+button,
+.buttonLink {
+  width: fit-content;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+button:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.message {
+  padding: 0.75rem;
+  border-left: 2px solid;
+}
+
+.error {
+  color: rgb(145, 25, 25);
+}
+
+.success {
+  color: rgb(30, 100, 55);
+}
+
+.records {
+  display: grid;
+  gap: 0;
+  margin-top: 1rem;
+  border-top: 1px solid rgb(215, 215, 210);
+}
+
+.record {
+  min-width: 0;
+  padding: 1rem 0;
+  border-bottom: 1px solid rgb(215, 215, 210);
+}
+
+.recordGrid {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.4fr)
+    minmax(0, 1fr)
+    minmax(7rem, 0.6fr)
+    auto;
+  gap: 1rem;
+  align-items: start;
+}
+
+.recordGrid > *,
+.recordHeader > * {
+  min-width: 0;
+}
+
+.recordHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 1rem;
+}
+
+.muted,
+small {
+  color: rgb(80, 80, 76);
+}
+
+.metaLabel {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: rgb(80, 80, 76);
+  font-size: 0.75rem;
+}
+
+.variants {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0;
+  margin: 0.8rem 0 0;
+  list-style: none;
+}
+
+.variants li {
+  padding-top: 0.5rem;
+  border-top: 1px solid rgb(230, 230, 225);
+  overflow-wrap: anywhere;
+}
+
+.pagination {
+  padding-top: 1rem;
+}
+
+dl {
+  margin: 1rem 0 0;
+  border-top: 1px solid rgb(215, 215, 210);
+}
+
+dl div {
+  display: grid;
+  grid-template-columns: minmax(7rem, 10rem) minmax(0, 1fr);
+  gap: 1rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid rgb(220, 220, 215);
+}
+
+dt {
+  color: rgb(80, 80, 76);
+}
+
+dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 52rem) {
+  .recordGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 36rem) {
+  .pageHeader,
+  .sectionHeader,
+  .recordHeader {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .recordGrid,
+  dl div {
+    grid-template-columns: 1fr;
+    gap: 0.4rem;
+  }
+}

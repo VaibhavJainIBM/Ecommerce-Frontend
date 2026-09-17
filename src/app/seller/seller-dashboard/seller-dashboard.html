@@ -1,62 +1,176 @@
 <app-navbar></app-navbar>
 
-<main class="content-page">
-  <p class="eyebrow">Selling</p>
-  <h1>Seller area</h1>
+<main class="sellerPage">
+  <header class="pageHeader">
+    <h1>Seller accounts</h1>
 
-  @if (isLoading()) {
-    <p>Loading seller accounts…</p>
-  } @else if (errorMessage()) {
-    <p role="alert">{{ errorMessage() }}</p>
-  } @else if (sellers().length === 0) {
-    <p>
-      You do not currently belong to a seller account.
+    <button
+      type="button"
+      [disabled]="isLoading()"
+      (click)="load()"
+    >
+      Refresh
+    </button>
+  </header>
+
+  @if (errorMessage()) {
+    <p class="message error" role="alert">
+      {{ errorMessage() }}
     </p>
-
-    <p>
-      Seller onboarding will be added in a later lesson.
-    </p>
-  } @else {
-    <div class="seller-list">
-      @for (seller of sellers(); track seller.sellerId) {
-        <section class="seller-row">
-          <h2>{{ seller.displayName }}</h2>
-          <p>{{ seller.legalBusinessName }}</p>
-
-          <dl>
-            <dt>Seller status</dt>
-            <dd>{{ seller.sellerStatus }}</dd>
-
-            <dt>Membership status</dt>
-            <dd>{{ seller.memberStatus }}</dd>
-
-            <dt>Your roles</dt>
-            <dd>
-              @if (seller.roles.length > 0) {
-                {{ seller.roles.join(', ') }}
-              } @else {
-                No active role
-              }
-            </dd>
-          </dl>
-
-          @if (
-            seller.memberStatus === 'Active' &&
-            seller.roles.length > 0
-          ) {
-            <a
-              class="workspace-link"
-              [routerLink]="['/seller', seller.sellerId]"
-            >
-              Open workspace
-            </a>
-          } @else {
-            <p class="restricted-message">
-              Workspace access is currently unavailable.
-            </p>
-          }
-        </section>
-      }
-    </div>
   }
+
+  @if (successMessage()) {
+    <p class="message success" role="status">
+      {{ successMessage() }}
+    </p>
+  }
+
+  <section>
+    <h2>Create seller</h2>
+
+    <form
+      class="simpleForm"
+      [formGroup]="createForm"
+      (ngSubmit)="createSeller()"
+    >
+      <label>
+        Display name
+        <input
+          type="text"
+          formControlName="displayName"
+          maxlength="150"
+        />
+      </label>
+
+      <label>
+        Legal business name
+        <input
+          type="text"
+          formControlName="legalBusinessName"
+          maxlength="250"
+        />
+      </label>
+
+      <button
+        type="submit"
+        [disabled]="isSaving()"
+      >
+        {{ isSaving() ? 'Saving' : 'Create' }}
+      </button>
+    </form>
+  </section>
+
+  @if (invitations().length > 0) {
+    <section>
+      <h2>Invitations</h2>
+
+      <div class="tableWrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Seller</th>
+              <th>Roles</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (
+              invitation of invitations();
+              track invitation.memberId
+            ) {
+              <tr>
+                <td data-label="Seller">
+                  {{ invitation.sellerName }}
+                </td>
+                <td data-label="Roles">
+                  {{ invitation.roles.join(', ') }}
+                </td>
+                <td data-label="Action">
+                  <button
+                    type="button"
+                    [disabled]="
+                      busySellerId() ===
+                      invitation.sellerId
+                    "
+                    (click)="
+                      acceptInvitation(invitation)
+                    "
+                  >
+                    Accept
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+
+  <section>
+    <h2>Accounts</h2>
+
+    @if (isLoading()) {
+      <p>Loading</p>
+    } @else if (sellers().length === 0) {
+      <p>No seller accounts</p>
+    } @else {
+      <div class="tableWrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Seller</th>
+              <th>Business</th>
+              <th>Seller status</th>
+              <th>Membership</th>
+              <th>Roles</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (
+              seller of sellers();
+              track seller.sellerId
+            ) {
+              <tr>
+                <td data-label="Seller">
+                  {{ seller.displayName }}
+                </td>
+                <td data-label="Business">
+                  {{ seller.legalBusinessName }}
+                </td>
+                <td data-label="Seller status">
+                  {{ seller.sellerStatus }}
+                </td>
+                <td data-label="Membership">
+                  {{ seller.memberStatus }}
+                </td>
+                <td data-label="Roles">
+                  {{
+                    seller.roles.length > 0
+                      ? seller.roles.join(', ')
+                      : 'None'
+                  }}
+                </td>
+                <td data-label="Action">
+                  @if (canOpen(seller)) {
+                    <a
+                      [routerLink]="[
+                        '/seller',
+                        seller.sellerId
+                      ]"
+                    >
+                      Open
+                    </a>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
 </main>

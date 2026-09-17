@@ -1,97 +1,98 @@
 <app-navbar></app-navbar>
 
 @if (sellerContext.selected(); as seller) {
-  <header class="workspace-heading">
-    <p class="eyebrow">Seller workspace</p>
-    <h1>{{ seller.displayName }}</h1>
+  <main class="workspacePage">
+    <header class="workspaceHeader">
+      <a routerLink="/seller">Seller accounts</a>
+      <h1>{{ seller.displayName }}</h1>
 
-    <p>
-      {{ seller.sellerStatus }}
-      ·
-      {{ seller.roles.join(', ') }}
-    </p>
-  </header>
+      <div class="sellerMeta">
+        <span>Status: {{ seller.sellerStatus }}</span>
+        <span>Roles: {{ seller.roles.join(', ') }}</span>
+      </div>
+    </header>
 
-  <div class="workspace">
-    <nav
-      class="workspace-nav"
-      aria-label="Seller navigation"
-    >
-      <a
-        [routerLink]="[
-          '/seller',
-          seller.sellerId,
-          'overview'
-        ]"
-        routerLinkActive="active"
+    <div class="workspaceLayout">
+      <nav
+        class="workspaceNav"
+        aria-label="Seller navigation"
       >
-        Overview
-      </a>
-
-      @if (sellerContext.canManage()) {
         <a
           [routerLink]="[
             '/seller',
             seller.sellerId,
-            'listings'
+            'overview'
           ]"
           routerLinkActive="active"
         >
-          Listings
+          Overview
         </a>
 
-        <a
-          [routerLink]="[
-            '/seller',
-            seller.sellerId,
-            'orders'
-          ]"
-          routerLinkActive="active"
-        >
-          Orders
-        </a>
-      }
+        @if (sellerContext.canManage()) {
+          <a
+            [routerLink]="[
+              '/seller',
+              seller.sellerId,
+              'listings'
+            ]"
+            routerLinkActive="active"
+          >
+            Listings
+          </a>
 
-      @if (sellerContext.canUseInventory()) {
-        <a
-          [routerLink]="[
-            '/seller',
-            seller.sellerId,
-            'warehouses'
-          ]"
-          routerLinkActive="active"
-        >
-          Warehouses
-        </a>
+          <a
+            [routerLink]="[
+              '/seller',
+              seller.sellerId,
+              'orders'
+            ]"
+            routerLinkActive="active"
+          >
+            Orders
+          </a>
+        }
 
-        <a
-          [routerLink]="[
-            '/seller',
-            seller.sellerId,
-            'inventory'
-          ]"
-          routerLinkActive="active"
-        >
-          Inventory
-        </a>
-      }
+        @if (sellerContext.canUseInventory()) {
+          <a
+            [routerLink]="[
+              '/seller',
+              seller.sellerId,
+              'warehouses'
+            ]"
+            routerLinkActive="active"
+          >
+            Warehouses
+          </a>
 
-      @if (sellerContext.isOwner()) {
-        <a
-          [routerLink]="[
-            '/seller',
-            seller.sellerId,
-            'team'
-          ]"
-          routerLinkActive="active"
-        >
-          Team
-        </a>
-      }
-    </nav>
+          <a
+            [routerLink]="[
+              '/seller',
+              seller.sellerId,
+              'inventory'
+            ]"
+            routerLinkActive="active"
+          >
+            Inventory
+          </a>
+        }
 
-    <main class="workspace-content">
-      <router-outlet></router-outlet>
-    </main>
-  </div>
+        @if (sellerContext.isOwner()) {
+          <a
+            [routerLink]="[
+              '/seller',
+              seller.sellerId,
+              'team'
+            ]"
+            routerLinkActive="active"
+          >
+            Team
+          </a>
+        }
+      </nav>
+
+      <section class="workspaceContent">
+        <router-outlet></router-outlet>
+      </section>
+    </div>
+  </main>
 }

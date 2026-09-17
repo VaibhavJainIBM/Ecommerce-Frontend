@@ -2,23 +2,21 @@ import {
   CurrencyPipe,
   DatePipe,
 } from '@angular/common';
-
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   Component,
   inject,
   OnInit,
   signal,
 } from '@angular/core';
-
-import { HttpErrorResponse } from '@angular/common/http';
-
 import { finalize } from 'rxjs';
 
 import { SellerApi } from '../seller-api';
 import { SellerContext } from '../seller-context';
-
+import { getSellerError } from '../seller-error';
 import {
   SellerOrder,
+  ShippingAddress,
 } from '../seller.models';
 
 @Component({
@@ -31,8 +29,7 @@ import {
   styleUrl: './seller-orders.css',
 })
 export class SellerOrders implements OnInit {
-  private readonly sellerApi =
-    inject(SellerApi);
+  private readonly sellerApi = inject(SellerApi);
 
   protected readonly sellerContext =
     inject(SellerContext);
@@ -40,54 +37,34 @@ export class SellerOrders implements OnInit {
   protected readonly orders =
     signal<SellerOrder[]>([]);
 
-  protected readonly selectedOrder =
-    signal<SellerOrder | null>(null);
-
-  protected readonly isLoading =
-    signal(false);
-
-  protected readonly errorMessage =
-    signal('');
-
-  protected readonly page =
-    signal(1);
-
-  protected readonly totalCount =
-    signal(0);
-
+  protected readonly page = signal(1);
+  protected readonly totalCount = signal(0);
   protected readonly pageSize = 20;
 
-  protected readonly totalPages =
-    signal(0);
+  protected readonly isLoading = signal(false);
+  protected readonly busyOrderId =
+    signal<string | null>(null);
+
+  protected readonly errorMessage = signal('');
+  protected readonly successMessage = signal('');
 
   ngOnInit(): void {
-    if (!this.sellerContext.isOwner()) {
-      return;
-    }
-
     this.loadOrders();
   }
 
   private get sellerId(): string {
-    const seller =
-      this.sellerContext.selected();
+    const sellerId =
+      this.sellerContext.selected()?.sellerId;
 
-    if (!seller) {
-      throw new Error(
-        'No seller is selected.',
-      );
+    if (!sellerId) {
+      throw new Error('No seller is selected.');
     }
 
-    return seller.sellerId;
+    return sellerId;
   }
 
-  protected loadOrders(
-    page = 1,
-  ): void {
-    if (
-      page < 1 ||
-      !this.sellerContext.isOwner()
-    ) {
+  protected loadOrders(page = 1): void {
+    if (page < 1) {
       return;
     }
 
@@ -101,61 +78,104 @@ export class SellerOrders implements OnInit {
         this.pageSize,
       )
       .pipe(
-        finalize(() =>
-          this.isLoading.set(false),
-        ),
+        finalize(() => this.isLoading.set(false)),
       )
       .subscribe({
         next: (response) => {
           this.orders.set(response.items);
-
           this.page.set(response.page);
-
-          this.totalCount.set(
-            response.totalCount,
-          );
-
-          this.totalPages.set(
-            Math.ceil(
-              response.totalCount /
-              response.pageSize,
-            ),
-          );
+          this.totalCount.set(response.totalCount);
         },
-
-        error: (
-          error: HttpErrorResponse,
-        ) => {
-          if (error.status === 403) {
-            this.errorMessage.set(
-              'Owner access is required to view seller orders.',
-            );
-
-            return;
-          }
-
-          if (error.status === 0) {
-            this.errorMessage.set(
-              'Cannot reach the orders API.',
-            );
-
-            return;
-          }
-
+        error: (error: HttpErrorResponse) => {
           this.errorMessage.set(
-            'Could not load seller orders.',
+            getSellerError(
+              error,
+              'Could not load orders.',
+            ),
           );
         },
       });
   }
 
-  protected openOrder(
-    order: SellerOrder,
-  ): void {
-    this.selectedOrder.set(order);
+  protected hasNextPage(): boolean {
+    return (
+      this.page() * this.pageSize <
+      this.totalCount()
+    );
   }
 
-  protected closeOrder(): void {
-    this.selectedOrder.set(null);
+  protected canShip(order: SellerOrder): boolean {
+    return (
+      (
+        order.status === 'Paid' ||
+        order.status === 'PartiallyShipped'
+      ) &&
+      order.items.some(
+        (item) => item.shippedAtUtc === null,
+      )
+    );
+  }
+
+  protected ship(order: SellerOrder): void {
+    if (
+      !this.canShip(order) ||
+      !window.confirm(
+        'Ship all unshipped items in this order?',
+      )
+    ) {
+      return;
+    }
+
+    this.busyOrderId.set(order.orderId);
+    this.errorMessage.set('');
+    this.successMessage.set('');
+
+    this.sellerApi
+      .shipOrder(this.sellerId, order.orderId)
+      .pipe(
+        finalize(() =>
+          this.busyOrderId.set(null),
+        ),
+      )
+      .subscribe({
+        next: (updated) => {
+          this.orders.update((orders) =>
+            orders.map((current) =>
+              current.orderId === updated.orderId
+                ? updated
+                : current,
+            ),
+          );
+
+          this.successMessage.set(
+            'Order items shipped.',
+          );
+        },
+        error: (error: HttpErrorResponse) => {
+          this.errorMessage.set(
+            getSellerError(
+              error,
+              'Could not ship the order.',
+            ),
+          );
+        },
+      });
+  }
+
+  protected formatAddress(
+    address: ShippingAddress,
+  ): string {
+    return [
+      address.line1,
+      address.line2,
+      address.city,
+      address.stateOrProvince,
+      address.postalCode,
+      address.countryCode,
+    ]
+      .filter((value): value is string =>
+        Boolean(value),
+      )
+      .join(', ');
   }
 }

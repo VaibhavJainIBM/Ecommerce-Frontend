@@ -1,78 +1,81 @@
-.workspace-heading {
-  width: min(72rem, calc(100% - 2rem));
-  margin-inline: auto;
-  padding-block: 2.5rem;
-  border-bottom: 1px solid #deded8;
-}
-
-.eyebrow {
-  margin: 0 0 0.5rem;
-  color: #73736d;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.workspace-heading h1 {
-  margin: 0;
-  font-size: clamp(2rem, 5vw, 3rem);
-  font-weight: 500;
-  letter-spacing: -0.04em;
-}
-
-.workspace-heading > p:last-child {
-  color: #63635e;
-}
-
-.workspace {
-  width: min(72rem, calc(100% - 2rem));
-  margin-inline: auto;
-  display: grid;
-  grid-template-columns: 12rem minmax(0, 1fr);
-}
-
-.workspace-nav {
-  padding-block: 2rem;
-  border-right: 1px solid #deded8;
-}
-
-.workspace-nav a {
+:host {
   display: block;
-  padding-block: 0.65rem;
-  color: #575752;
+}
+
+.workspacePage {
+  width: min(76rem, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 2rem 0 4rem;
+}
+
+.workspaceHeader {
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgb(215, 215, 210);
+}
+
+.workspaceHeader a {
+  color: rgb(65, 65, 62);
+  font-size: 0.85rem;
+}
+
+.workspaceHeader h1 {
+  margin: 0.8rem 0;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.sellerMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  color: rgb(80, 80, 76);
+  font-size: 0.85rem;
+}
+
+.workspaceLayout {
+  display: grid;
+  grid-template-columns: 11rem minmax(0, 1fr);
+}
+
+.workspaceNav {
+  display: grid;
+  align-content: start;
+  padding: 1.5rem 1.5rem 1.5rem 0;
+  border-right: 1px solid rgb(215, 215, 210);
+}
+
+.workspaceNav a {
+  padding: 0.6rem 0;
+  color: rgb(80, 80, 76);
   text-decoration: none;
 }
 
-.workspace-nav a:hover,
-.workspace-nav a.active {
-  color: #171717;
+.workspaceNav a:hover,
+.workspaceNav a.active {
+  color: rgb(20, 20, 20);
   text-decoration: underline;
 }
 
-.workspace-content {
+.workspaceContent {
   min-width: 0;
-  padding: 2rem;
+  padding: 1.5rem 0 0 1.5rem;
 }
 
-@media (max-width: 44rem) {
-  .workspace {
+@media (max-width: 46rem) {
+  .workspaceLayout {
     display: block;
   }
 
-  .workspace-nav {
+  .workspaceNav {
     display: flex;
+    flex-wrap: wrap;
     gap: 1rem;
-    overflow-x: auto;
+    padding: 1rem 0;
     border-right: 0;
-    border-bottom: 1px solid #deded8;
+    border-bottom: 1px solid rgb(215, 215, 210);
   }
 
-  .workspace-nav a {
-    white-space: nowrap;
-  }
-
-  .workspace-content {
-    padding-inline: 0;
+  .workspaceContent {
+    padding-left: 0;
   }
 }

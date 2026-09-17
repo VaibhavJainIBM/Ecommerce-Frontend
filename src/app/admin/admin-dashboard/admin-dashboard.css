@@ -1,0 +1,74 @@
+:host {
+  display: block;
+}
+
+.workspacePage {
+  width: min(76rem, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 2rem 0 4rem;
+}
+
+.workspaceHeader {
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgb(215, 215, 210);
+}
+
+.workspaceHeader h1 {
+  margin: 0 0 0.8rem;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.workspaceHeader span {
+  color: rgb(80, 80, 76);
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+
+.workspaceLayout {
+  display: grid;
+  grid-template-columns: 11rem minmax(0, 1fr);
+}
+
+.workspaceNav {
+  display: grid;
+  align-content: start;
+  padding: 1.5rem 1.5rem 1.5rem 0;
+  border-right: 1px solid rgb(215, 215, 210);
+}
+
+.workspaceNav a {
+  padding: 0.6rem 0;
+  color: rgb(80, 80, 76);
+  text-decoration: none;
+}
+
+.workspaceNav a:hover,
+.workspaceNav a.active {
+  color: rgb(20, 20, 20);
+  text-decoration: underline;
+}
+
+.workspaceContent {
+  min-width: 0;
+  padding: 1.5rem 0 0 1.5rem;
+}
+
+@media (max-width: 46rem) {
+  .workspaceLayout {
+    display: block;
+  }
+
+  .workspaceNav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1rem;
+    padding: 1rem 0;
+    border-right: 0;
+    border-bottom: 1px solid rgb(215, 215, 210);
+  }
+
+  .workspaceContent {
+    padding-left: 0;
+  }
+}

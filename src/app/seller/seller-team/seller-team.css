@@ -1,0 +1,170 @@
+:host {
+  display: block;
+}
+
+.pageHeader,
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+h2,
+h3,
+h4 {
+  margin: 0;
+  font-weight: 600;
+}
+
+h2 {
+  font-size: 1.5rem;
+}
+
+h3 {
+  font-size: 1.05rem;
+}
+
+h4 {
+  margin-bottom: 0.8rem;
+  font-size: 0.95rem;
+}
+
+section {
+  padding-top: 1.5rem;
+  margin-top: 1.5rem;
+  border-top: 1px solid rgb(215, 215, 210);
+}
+
+.inviteForm {
+  display: grid;
+  grid-template-columns: 1fr 12rem auto;
+  gap: 1rem;
+  align-items: end;
+  margin-top: 1rem;
+}
+
+label {
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+input,
+select,
+button {
+  min-height: 2.4rem;
+  padding: 0.5rem 0.65rem;
+  color: rgb(24, 24, 24);
+  background: white;
+  border: 1px solid rgb(165, 165, 160);
+  border-radius: 0;
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.message {
+  padding: 0.75rem;
+  border-left: 2px solid;
+}
+
+.error {
+  color: rgb(145, 25, 25);
+}
+
+.success {
+  color: rgb(30, 100, 55);
+}
+
+.tableWrap {
+  margin-top: 1rem;
+  min-width: 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 0.7rem;
+  border-bottom: 1px solid rgb(220, 220, 215);
+  text-align: left;
+}
+
+th {
+  font-size: 0.75rem;
+}
+
+.sectionHeader > div {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.sectionHeader span {
+  color: rgb(80, 80, 76);
+}
+
+.memberActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.managementGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.checkRow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0;
+  font-weight: 400;
+}
+
+.checkRow input {
+  min-height: auto;
+}
+
+dl {
+  margin-top: 1.5rem;
+  border-top: 1px solid rgb(215, 215, 210);
+}
+
+dl div {
+  display: grid;
+  grid-template-columns: 8rem 1fr;
+  gap: 1rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid rgb(220, 220, 215);
+}
+
+dt {
+  color: rgb(80, 80, 76);
+}
+
+dd {
+  margin: 0;
+}
+
+@media (max-width: 44rem) {
+  .inviteForm,
+  .managementGrid {
+    grid-template-columns: 1fr;
+  }
+}

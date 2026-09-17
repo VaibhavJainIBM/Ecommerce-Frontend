@@ -1,0 +1,124 @@
+<header class="pageHeader">
+  <div>
+    <h2>Seller reviews</h2>
+    <p class="muted">{{ totalCount() }} sellers</p>
+  </div>
+
+  <button
+    type="button"
+    [disabled]="isLoading()"
+    (click)="load(page())"
+  >
+    Refresh
+  </button>
+</header>
+
+<form
+  class="filterForm"
+  (ngSubmit)="load(1)"
+>
+  <label>
+    Search
+    <input
+      type="search"
+      [formControl]="search"
+      maxlength="100"
+    />
+  </label>
+
+  <label>
+    Status
+    <select
+      [value]="status()"
+      (change)="changeStatus($event)"
+    >
+      <option value="">All</option>
+
+      @for (item of statuses; track item) {
+        <option [value]="item">{{ item }}</option>
+      }
+    </select>
+  </label>
+
+  <button type="submit" [disabled]="isLoading()">
+    Search
+  </button>
+</form>
+
+@if (errorMessage()) {
+  <p class="message error" role="alert">
+    {{ errorMessage() }}
+  </p>
+}
+
+@if (successMessage()) {
+  <p class="message success" role="status">
+    {{ successMessage() }}
+  </p>
+}
+
+@if (isLoading()) {
+  <p>Loading</p>
+} @else if (sellers().length === 0) {
+  <p>No sellers</p>
+} @else {
+  <div class="records">
+    @for (seller of sellers(); track seller.sellerId) {
+      <article class="record recordGrid">
+        <div>
+          <span class="metaLabel">Seller</span>
+          <strong>{{ seller.displayName }}</strong>
+          <small>{{ seller.legalBusinessName }}</small>
+        </div>
+
+        <div>
+          <span class="metaLabel">Submitted</span>
+          {{ seller.createdAtUtc | date: 'medium' }}
+        </div>
+
+        <div>
+          <span class="metaLabel">Status</span>
+          {{ seller.status }}
+        </div>
+
+        <div class="actions">
+          @if (seller.status === 'UnderReview') {
+            <button
+              type="button"
+              [disabled]="busySellerId() !== null"
+              (click)="approve(seller)"
+            >
+              {{
+                busySellerId() === seller.sellerId
+                  ? 'Approving'
+                  : 'Approve'
+              }}
+            </button>
+          }
+        </div>
+      </article>
+    }
+  </div>
+
+  @if (totalPages() > 1) {
+    <div class="pagination">
+      <button
+        type="button"
+        [disabled]="page() <= 1"
+        (click)="load(page() - 1)"
+      >
+        Previous
+      </button>
+
+      <span>{{ page() }} of {{ totalPages() }}</span>
+
+      <button
+        type="button"
+        [disabled]="page() >= totalPages()"
+        (click)="load(page() + 1)"
+      >
+        Next
+      </button>
+    </div>
+  }
+}

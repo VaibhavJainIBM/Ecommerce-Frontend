@@ -1,15 +1,7 @@
-<header class="page-heading">
-  <div>
-    <p class="eyebrow">Catalogue</p>
-    <h2>Listings</h2>
-
-    <p class="description">
-      Create and manage products sold by this seller.
-    </p>
-  </div>
+<header class="pageHeader">
+  <h2>Listings</h2>
 
   <button
-    class="secondary-button"
     type="button"
     [disabled]="isLoading()"
     (click)="loadListings(page())"
@@ -18,294 +10,147 @@
   </button>
 </header>
 
-@if (
-  sellerContext.selected()?.sellerStatus !== 'Active'
-) {
-  <p class="notice">
-    You can prepare draft listings, but the seller must
-    be Active before submitting them for review.
+@if (errorMessage()) {
+  <p class="message error" role="alert">
+    {{ errorMessage() }}
   </p>
 }
 
-<section class="section">
-  <div class="section-heading">
-    <div>
-      <h3>Create draft listing</h3>
+@if (successMessage()) {
+  <p class="message success" role="status">
+    {{ successMessage() }}
+  </p>
+}
 
-      <p class="section-description">
-        Search the product catalog and select the variant
-        you want to sell.
-      </p>
-    </div>
-  </div>
+<section>
+  <h3>Catalog</h3>
 
   <form
-    class="catalog-search"
-    (submit)="
-      searchCatalog(
-        catalogSearchInput.value,
-        $event
-      )
-    "
+    class="searchForm"
+    (ngSubmit)="loadCatalog(1)"
   >
     <label>
-      <span>Search products</span>
-
-      <div class="search-row">
-        <input
-          #catalogSearchInput
-          type="search"
-          [value]="catalogSearch()"
-          placeholder="Search by product name or brand"
-          maxlength="100"
-        />
-
-        <button
-          class="primary-button"
-          type="submit"
-          [disabled]="isCatalogLoading()"
-        >
-          {{
-            isCatalogLoading()
-              ? 'Searching…'
-              : 'Search'
-          }}
-        </button>
-
-        @if (catalogSearch()) {
-          <button
-            class="secondary-button"
-            type="button"
-            (click)="
-              catalogSearchInput.value = '';
-              clearCatalogSearch()
-            "
-          >
-            Clear
-          </button>
-        }
-      </div>
+      Search
+      <input
+        type="search"
+        [formControl]="catalogSearch"
+        maxlength="100"
+      />
     </label>
+
+    <button
+      type="submit"
+      [disabled]="isCatalogLoading()"
+    >
+      Search
+    </button>
   </form>
 
-  @if (catalogErrorMessage()) {
-    <p
-      class="feedback error"
-      role="alert"
-    >
-      {{ catalogErrorMessage() }}
+  @if (catalogError()) {
+    <p class="message error" role="alert">
+      {{ catalogError() }}
     </p>
   }
 
   @if (isCatalogLoading()) {
-    <p class="empty-message">
-      Loading catalog…
-    </p>
-  } @else if (
-    catalogProducts().length === 0
-  ) {
-    <p class="empty-message">
-      No catalog products found.
-    </p>
+    <p>Loading</p>
+  } @else if (catalogProducts().length === 0) {
+    <p>No products</p>
   } @else {
-    <div class="catalog-results">
-      @for (
-        product of catalogProducts();
-        track product.productId
-      ) {
-        <article class="catalog-product">
-          <div class="catalog-product-heading">
-            <div>
-              <p class="product-brand">
-                {{ product.brandName }}
-              </p>
+    <div class="tableWrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Variant</th>
+            <th>Code</th>
+            <th>Action</th>
+          </tr>
+        </thead>
 
-              <h4>
-                {{ product.title }}
-              </h4>
-
-              @if (product.description) {
-                <p class="product-description">
-                  {{ product.description }}
-                </p>
-              }
-            </div>
-
-            <div class="product-id">
-              <span>Product ID</span>
-
-              <code>
-                {{ product.productId }}
-              </code>
-            </div>
-          </div>
-
-          <div class="variant-list">
+        <tbody>
+          @for (
+            product of catalogProducts();
+            track product.productId
+          ) {
             @for (
               variant of product.variants;
               track variant.variantId
             ) {
-              <button
-                type="button"
-                class="variant-button"
-                [class.selected]="
-                  selectedCatalogVariant()
-                    ?.variant
-                    ?.variantId ===
-                  variant.variantId
-                "
-                (click)="
-                  selectCatalogVariant(
-                    product,
-                    variant
-                  )
-                "
-              >
-                <span class="variant-main">
-                  <strong>
-                    {{ variant.name }}
-                  </strong>
-
-                  <span>
-                    {{ variant.variantCode }}
-                  </span>
-                </span>
-
-                <span class="variant-action">
-                  {{
-                    selectedCatalogVariant()
-                      ?.variant
-                      ?.variantId ===
-                    variant.variantId
-                      ? 'Selected'
-                      : 'Select'
-                  }}
-                </span>
-              </button>
+              <tr>
+                <td data-label="Product">
+                  {{ product.brandName }}
+                  {{ product.title }}
+                </td>
+                <td data-label="Variant">{{ variant.name }}</td>
+                <td data-label="Code">{{ variant.variantCode }}</td>
+                <td data-label="Action">
+                  <button
+                    type="button"
+                    (click)="
+                      selectVariant(product, variant)
+                    "
+                  >
+                    Select
+                  </button>
+                </td>
+              </tr>
             }
-          </div>
-        </article>
-      }
+          }
+        </tbody>
+      </table>
     </div>
 
     @if (catalogTotalPages() > 1) {
-      <nav
-        class="pagination catalog-pagination"
-        aria-label="Catalog pages"
-      >
+      <div class="pagination">
         <button
-          class="secondary-button"
           type="button"
           [disabled]="catalogPage() <= 1"
           (click)="
-            loadCatalog(
-              catalogSearch(),
-              catalogPage() - 1
-            )
+            loadCatalog(catalogPage() - 1)
           "
         >
           Previous
         </button>
 
         <span>
-          Page
           {{ catalogPage() }}
           of
           {{ catalogTotalPages() }}
         </span>
 
         <button
-          class="secondary-button"
           type="button"
           [disabled]="
-            catalogPage() >=
-            catalogTotalPages()
+            catalogPage() >= catalogTotalPages()
           "
           (click)="
-            loadCatalog(
-              catalogSearch(),
-              catalogPage() + 1
-            )
+            loadCatalog(catalogPage() + 1)
           "
         >
           Next
         </button>
-      </nav>
+      </div>
     }
   }
+</section>
 
-  @if (
-    selectedCatalogVariant();
-    as selected
-  ) {
-    <div class="selected-product">
-      <div class="selected-product-heading">
-        <div>
-          <p class="eyebrow">
-            Selected product
-          </p>
+<section>
+  <h3>Create listing</h3>
 
-          <h4>
-            {{ selected.product.title }}
-          </h4>
-
-          <p>
-            {{ selected.product.brandName }}
-            ·
-            {{ selected.variant.name }}
-          </p>
-        </div>
-
-        <span class="selected-badge">
-          Selected
-        </span>
-      </div>
-
-      <dl class="identifier-grid">
-        <div>
-          <dt>Product ID</dt>
-
-          <dd>
-            <code>
-              {{ selected.product.productId }}
-            </code>
-          </dd>
-        </div>
-
-        <div>
-          <dt>Variant ID</dt>
-
-          <dd>
-            <code>
-              {{ selected.variant.variantId }}
-            </code>
-          </dd>
-        </div>
-
-        <div>
-          <dt>Variant code</dt>
-
-          <dd>
-            {{ selected.variant.variantCode }}
-          </dd>
-        </div>
-
-        <div>
-          <dt>GTIN</dt>
-
-          <dd>
-            {{
-              selected.variant.gtin ||
-              'Not available'
-            }}
-          </dd>
-        </div>
-      </dl>
-    </div>
+  @if (selectedCatalogVariant(); as selected) {
+    <p class="selection">
+      {{ selected.product.brandName }}
+      {{ selected.product.title }}
+      {{ selected.variant.name }}
+      {{ selected.variant.variantCode }}
+    </p>
+  } @else {
+    <p>Select a catalog variant</p>
   }
 
   <form
-    class="create-form"
+    class="createForm"
     [formGroup]="createForm"
     (ngSubmit)="createListing()"
   >
@@ -314,96 +159,57 @@
       formControlName="productVariantId"
     />
 
-    <label class="sku-field">
-      <span>Seller SKU</span>
-
+    <label>
+      Seller SKU
       <input
         type="text"
         formControlName="sellerSku"
-        placeholder="IPH17-BLK-128"
         maxlength="64"
       />
     </label>
 
     <label>
-      <span>Price</span>
-
+      Price
       <input
         type="number"
         formControlName="priceAmount"
         min="0.01"
         step="0.01"
-        placeholder="79999"
       />
     </label>
 
     <label>
-      <span>Currency</span>
-
+      Currency
       <input
         type="text"
         formControlName="currencyCode"
         maxlength="3"
-        placeholder="INR"
       />
     </label>
 
     <button
-      class="primary-button create-button"
       type="submit"
       [disabled]="
         isCreating() ||
-        !canCreateListing() ||
-        !selectedCatalogVariant() ||
-        createForm.invalid
+        !canCreateListing()
       "
     >
-      {{
-        isCreating()
-          ? 'Creating…'
-          : 'Create draft'
-      }}
+      {{ isCreating() ? 'Creating' : 'Create' }}
     </button>
   </form>
-
-  @if (selectedCatalogVariant()) {
-    <p class="field-help">
-      Seller SKU is generated automatically.
-      You can edit it to match your internal
-      inventory code.
-    </p>
-  }
-
-  @if (!selectedCatalogVariant()) {
-    <p class="form-hint">
-      Select a product variant above before
-      creating the listing.
-    </p>
-  }
 </section>
 
-<section class="section">
-  <div class="list-heading">
-    <div>
-      <h3>Current listings</h3>
+<section>
+  <div class="sectionHeader">
+    <h3>Seller listings</h3>
 
-      <p class="section-description">
-        {{ totalCount() }} total
-      </p>
-    </div>
-
-    <label class="filter">
-      <span>Status</span>
-
+    <label>
+      Status
       <select
         [value]="statusFilter()"
-        (change)="
-          changeStatusFilter($event)
-        "
+        (change)="changeStatusFilter($event)"
       >
-        <option value="">
-          All statuses
-        </option>
+        <option value="">All</option>
 
         @for (
           status of statusOptions;
@@ -417,36 +223,12 @@
     </label>
   </div>
 
-  @if (errorMessage()) {
-    <p
-      class="feedback error"
-      role="alert"
-    >
-      {{ errorMessage() }}
-    </p>
-  }
-
-  @if (successMessage()) {
-    <p
-      class="feedback success"
-      role="status"
-    >
-      {{ successMessage() }}
-    </p>
-  }
-
   @if (isLoading()) {
-    <p class="empty-message">
-      Loading listings…
-    </p>
-  } @else if (
-    listings().length === 0
-  ) {
-    <p class="empty-message">
-      No listings match this filter.
-    </p>
+    <p>Loading</p>
+  } @else if (listings().length === 0) {
+    <p>No listings</p>
   } @else {
-    <div class="table-wrapper">
+    <div class="tableWrap">
       <table>
         <thead>
           <tr>
@@ -454,12 +236,7 @@
             <th>SKU</th>
             <th>Status</th>
             <th>Price</th>
-
-            <th>
-              <span class="visually-hidden">
-                Actions
-              </span>
-            </th>
+            <th>Actions</th>
           </tr>
         </thead>
 
@@ -469,96 +246,52 @@
             track listing.listingId
           ) {
             <tr>
-              <td>
-                <strong>
-                  {{ listing.productTitle }}
-                </strong>
-
-                <span class="muted">
-                  {{ listing.brandName }}
-                  ·
+              <td data-label="Product">
+                {{ listing.productTitle }}
+                <small>
                   {{ listing.variantName }}
-                </span>
-
-                <span class="muted id-text">
-                  Product ID:
-                  <code>
-                    {{ listing.productId }}
-                  </code>
-                </span>
-
-                <span class="muted id-text">
-                  Variant ID:
-                  <code>
-                    {{
-                      listing.productVariantId
-                    }}
-                  </code>
-                </span>
+                </small>
               </td>
-
-              <td>
-                <strong class="sku">
-                  {{ listing.sellerSku }}
-                </strong>
-
-                <span class="muted">
-                  {{ listing.variantCode }}
-                </span>
-              </td>
-
-              <td>
-                {{ listing.status }}
-              </td>
-
-              <td>
-                @if (
-                  canEditPrice(listing)
-                ) {
-                  <div class="price-editor">
+              <td data-label="SKU">{{ listing.sellerSku }}</td>
+              <td data-label="Status">{{ listing.status }}</td>
+              <td data-label="Price">
+                @if (canEditPrice(listing)) {
+                  <div class="priceEditor">
                     <input
-                      #priceInput
                       type="number"
                       min="0.01"
                       step="0.01"
-                      [value]="
-                        listing.priceAmount
-                      "
-                      [attr.aria-label]="
-                        'Price for ' +
-                        listing.productTitle
+                      [value]="listing.priceAmount"
+                      (input)="
+                        changePriceDraft(
+                          listing,
+                          'price',
+                          $event
+                        )
                       "
                     />
 
                     <input
-                      #currencyInput
-                      class="currency-input"
                       type="text"
                       maxlength="3"
-                      [value]="
-                        listing.currencyCode
-                      "
-                      [attr.aria-label]="
-                        'Currency for ' +
-                        listing.productTitle
+                      [value]="listing.currencyCode"
+                      (input)="
+                        changePriceDraft(
+                          listing,
+                          'currency',
+                          $event
+                        )
                       "
                     />
 
                     <button
-                      class="text-button"
                       type="button"
                       [disabled]="
                         busyListingId() !== null
                       "
-                      (click)="
-                        updatePrice(
-                          listing,
-                          priceInput.value,
-                          currencyInput.value
-                        )
-                      "
+                      (click)="updatePrice(listing)"
                     >
-                      Update
+                      Save
                     </button>
                   </div>
                 } @else {
@@ -569,58 +302,39 @@
                   }}
                 }
               </td>
-
-              <td>
+              <td data-label="Actions">
                 <div class="actions">
                   <button
-                    class="text-button"
                     type="button"
-                    [disabled]="
-                      isLoadingDetails()
-                    "
                     (click)="
-                      loadDetails(
-                        listing.listingId
-                      )
+                      loadDetails(listing.listingId)
                     "
                   >
                     Details
                   </button>
 
-                  @if (
-                    canSubmit(listing)
-                  ) {
+                  @if (canSubmit(listing)) {
                     <button
-                      class="text-button"
                       type="button"
                       [disabled]="
-                        busyListingId() !==
-                        null
+                        busyListingId() !== null
                       "
                       (click)="
-                        submitForReview(
-                          listing
-                        )
+                        submitForReview(listing)
                       "
                     >
                       Submit
                     </button>
                   }
 
-                  @if (
-                    canArchive(listing)
-                  ) {
+                  @if (canArchive(listing)) {
                     <button
-                      class="text-button danger"
                       type="button"
                       [disabled]="
-                        busyListingId() !==
-                        null
+                        busyListingId() !== null
                       "
                       (click)="
-                        archiveListing(
-                          listing
-                        )
+                        archiveListing(listing)
                       "
                     >
                       Archive
@@ -635,75 +349,39 @@
     </div>
 
     @if (totalPages() > 1) {
-      <nav
-        class="pagination"
-        aria-label="Listing pages"
-      >
+      <div class="pagination">
         <button
-          class="secondary-button"
           type="button"
           [disabled]="page() <= 1"
-          (click)="
-            loadListings(page() - 1)
-          "
+          (click)="loadListings(page() - 1)"
         >
           Previous
         </button>
 
         <span>
-          Page
-          {{ page() }}
-          of
-          {{ totalPages() }}
+          {{ page() }} of {{ totalPages() }}
         </span>
 
         <button
-          class="secondary-button"
           type="button"
-          [disabled]="
-            page() >= totalPages()
-          "
-          (click)="
-            loadListings(page() + 1)
-          "
+          [disabled]="page() >= totalPages()"
+          (click)="loadListings(page() + 1)"
         >
           Next
         </button>
-      </nav>
+      </div>
     }
   }
 </section>
 
-@if (isLoadingDetails()) {
-  <section class="section">
-    <p>
-      Loading listing details…
-    </p>
-  </section>
-}
-
-@if (
-  selectedListing();
-  as listing
-) {
-  <section class="section details">
-    <div class="list-heading">
-      <div>
-        <p class="eyebrow">
-          Listing details
-        </p>
-
-        <h3>
-          {{ listing.productTitle }}
-        </h3>
-      </div>
+@if (selectedListing(); as listing) {
+  <section>
+    <div class="sectionHeader">
+      <h3>Listing details</h3>
 
       <button
-        class="text-button"
         type="button"
-        (click)="
-          selectedListing.set(null)
-        "
+        (click)="selectedListing.set(null)"
       >
         Close
       </button>
@@ -711,75 +389,29 @@
 
     <dl>
       <div>
-        <dt>Listing ID</dt>
-
-        <dd>
-          {{ listing.listingId }}
-        </dd>
+        <dt>Product</dt>
+        <dd>{{ listing.productTitle }}</dd>
       </div>
-
-      <div>
-        <dt>Product ID</dt>
-
-        <dd>
-          {{ listing.productId }}
-        </dd>
-      </div>
-
-      <div>
-        <dt>Seller SKU</dt>
-
-        <dd>
-          {{ listing.sellerSku }}
-        </dd>
-      </div>
-
       <div>
         <dt>Variant</dt>
-
-        <dd>
-          {{ listing.variantName }}
-          ·
-          {{ listing.variantCode }}
-        </dd>
+        <dd>{{ listing.variantName }}</dd>
       </div>
-
       <div>
-        <dt>Product variant ID</dt>
-
-        <dd>
-          {{ listing.productVariantId }}
-        </dd>
+        <dt>Code</dt>
+        <dd>{{ listing.variantCode }}</dd>
       </div>
-
       <div>
-        <dt>Price</dt>
-
-        <dd>
-          {{
-            listing.priceAmount
-              | currency:
-                listing.currencyCode
-          }}
-        </dd>
+        <dt>SKU</dt>
+        <dd>{{ listing.sellerSku }}</dd>
       </div>
-
       <div>
         <dt>Status</dt>
-
-        <dd>
-          {{ listing.status }}
-        </dd>
+        <dd>{{ listing.status }}</dd>
       </div>
-
       <div>
         <dt>Created</dt>
-
         <dd>
-          {{
-            listing.createdAtUtc
-              | date: 'medium'
-          }}
+          {{ listing.createdAtUtc | date: 'medium' }}
         </dd>
       </div>
     </dl>

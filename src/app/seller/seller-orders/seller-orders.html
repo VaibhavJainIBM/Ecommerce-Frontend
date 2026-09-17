@@ -1,436 +1,167 @@
-<header class="page-heading">
-  <div>
-    <p class="eyebrow">
-      Fulfilment
-    </p>
+<header class="pageHeader">
+  <h2>Orders</h2>
 
-    <h2>
-      Orders
-    </h2>
-
-    <p class="description">
-      View orders containing products sold by
-      this seller.
-    </p>
-  </div>
-
-  @if (sellerContext.isOwner()) {
-    <button
-      class="secondary-button"
-      type="button"
-      [disabled]="isLoading()"
-      (click)="loadOrders(page())"
-    >
-      Refresh
-    </button>
-  }
+  <button
+    type="button"
+    [disabled]="isLoading()"
+    (click)="loadOrders(page())"
+  >
+    Refresh
+  </button>
 </header>
 
-@if (!sellerContext.isOwner()) {
-  <div class="notice">
-    <strong>
-      Owner access required
-    </strong>
+@if (errorMessage()) {
+  <p class="message error" role="alert">
+    {{ errorMessage() }}
+  </p>
+}
 
-    <p>
-      Seller orders are currently available
-      only to seller owners.
-    </p>
-  </div>
+@if (successMessage()) {
+  <p class="message success" role="status">
+    {{ successMessage() }}
+  </p>
+}
+
+@if (isLoading()) {
+  <p>Loading</p>
+} @else if (orders().length === 0) {
+  <p>No orders</p>
 } @else {
+  <div class="orderList">
+    @for (
+      order of orders();
+      track order.orderId
+    ) {
+      <article class="order">
+        <header class="orderHeader">
+          <div>
+            <h3>{{ order.orderNumber }}</h3>
+            <span>{{ order.status }}</span>
+          </div>
 
-  <section class="summary">
-    <div>
-      <span class="summary-label">
-        Total orders
-      </span>
-
-      <strong class="summary-value">
-        {{ totalCount() }}
-      </strong>
-    </div>
-  </section>
-
-  @if (errorMessage()) {
-    <p
-      class="feedback error"
-      role="alert"
-    >
-      {{ errorMessage() }}
-    </p>
-  }
-
-  @if (isLoading()) {
-    <div class="empty-state">
-      Loading orders…
-    </div>
-  } @else if (
-    orders().length === 0
-  ) {
-    <div class="empty-state">
-      <strong>
-        No orders yet
-      </strong>
-
-      <p>
-        Orders containing this seller's
-        products will appear here.
-      </p>
-    </div>
-  } @else {
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>Order</th>
-            <th>Customer</th>
-            <th>Items</th>
-            <th>Status</th>
-            <th>Seller subtotal</th>
-            <th>Created</th>
-            <th>
-              <span class="visually-hidden">
-                Actions
-              </span>
-            </th>
-          </tr>
-        </thead>
-
-        <tbody>
-          @for (
-            order of orders();
-            track order.orderId
-          ) {
-            <tr>
-              <td>
-                <strong class="order-number">
-                  {{ order.orderNumber }}
-                </strong>
-
-                <span class="muted">
-                  {{ order.orderId }}
-                </span>
-              </td>
-
-              <td>
-                <strong>
-                  {{ order.recipientName }}
-                </strong>
-
-                <span class="muted">
-                  {{ order.phone }}
-                </span>
-              </td>
-
-              <td>
-                {{ order.items.length }}
-
-                <span class="muted">
-                  {{
-                    order.items.length === 1
-                      ? 'item'
-                      : 'items'
-                  }}
-                </span>
-              </td>
-
-              <td>
-                <span
-                  class="status"
-                  [attr.data-status]="
-                    order.status
-                  "
-                >
-                  {{ order.status }}
-                </span>
-              </td>
-
-              <td>
-                <strong>
-                  {{
-                    order.sellerSubtotal
-                      | currency:
-                        order.currencyCode
-                  }}
-                </strong>
-              </td>
-
-              <td>
-                {{
-                  order.createdAtUtc
-                    | date: 'medium'
-                }}
-              </td>
-
-              <td>
-                <button
-                  class="text-button"
-                  type="button"
-                  (click)="openOrder(order)"
-                >
-                  Details
-                </button>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-
-    @if (totalPages() > 1) {
-      <nav
-        class="pagination"
-        aria-label="Order pages"
-      >
-        <button
-          class="secondary-button"
-          type="button"
-          [disabled]="
-            page() <= 1 ||
-            isLoading()
-          "
-          (click)="
-            loadOrders(page() - 1)
-          "
-        >
-          Previous
-        </button>
-
-        <span>
-          Page
-          {{ page() }}
-          of
-          {{ totalPages() }}
-        </span>
-
-        <button
-          class="secondary-button"
-          type="button"
-          [disabled]="
-            page() >= totalPages() ||
-            isLoading()
-          "
-          (click)="
-            loadOrders(page() + 1)
-          "
-        >
-          Next
-        </button>
-      </nav>
-    }
-  }
-
-  @if (
-    selectedOrder();
-    as order
-  ) {
-    <section class="order-details">
-      <div class="details-heading">
-        <div>
-          <p class="eyebrow">
-            Order details
-          </p>
-
-          <h3>
-            {{ order.orderNumber }}
-          </h3>
-
-          <p class="muted">
-            {{
-              order.createdAtUtc
-                | date: 'medium'
-            }}
-          </p>
-        </div>
-
-        <button
-          class="text-button"
-          type="button"
-          (click)="closeOrder()"
-        >
-          Close
-        </button>
-      </div>
-
-      <div class="details-grid">
-        <div class="detail-card">
-          <span class="detail-label">
-            Customer
-          </span>
-
-          <strong>
-            {{ order.recipientName }}
-          </strong>
-
-          <span>
-            {{ order.phone }}
-          </span>
-        </div>
-
-        <div class="detail-card">
-          <span class="detail-label">
-            Status
-          </span>
-
-          <strong>
-            {{ order.status }}
-          </strong>
-        </div>
-
-        <div class="detail-card">
-          <span class="detail-label">
-            Seller subtotal
-          </span>
-
-          <strong>
+          <div class="orderTotal">
             {{
               order.sellerSubtotal
-                | currency:
-                  order.currencyCode
+                | currency: order.currencyCode
             }}
-          </strong>
-        </div>
+          </div>
 
-        <div class="detail-card">
-          <span class="detail-label">
-            Expires
-          </span>
-
-          <strong>
-            {{
-              order.expiresAtUtc
-                | date: 'medium'
-            }}
-          </strong>
-        </div>
-      </div>
-
-      <div class="shipping">
-        <h4>
-          Shipping address
-        </h4>
-
-        <address>
-          {{ order.recipientName }}
-          <br />
-
-          {{ order.shippingAddress.line1 }}
-
-          @if (
-            order.shippingAddress.line2
-          ) {
-            <br />
-
-            {{
-              order.shippingAddress.line2
-            }}
+          @if (canShip(order)) {
+            <button
+              type="button"
+              [disabled]="
+                busyOrderId() !== null
+              "
+              (click)="ship(order)"
+            >
+              Ship
+            </button>
           }
+        </header>
 
-          <br />
+        <dl>
+          <div>
+            <dt>Customer</dt>
+            <dd>{{ order.recipientName }}</dd>
+          </div>
+          <div>
+            <dt>Phone</dt>
+            <dd>{{ order.phone }}</dd>
+          </div>
+          <div>
+            <dt>Address</dt>
+            <dd>
+              {{
+                formatAddress(
+                  order.shippingAddress
+                )
+              }}
+            </dd>
+          </div>
+          <div>
+            <dt>Created</dt>
+            <dd>
+              {{
+                order.createdAtUtc
+                  | date: 'medium'
+              }}
+            </dd>
+          </div>
+          <div>
+            <dt>Payment mode</dt>
+            <dd>{{ order.paymentMode || 'None' }}</dd>
+          </div>
+        </dl>
 
-          {{ order.shippingAddress.city }},
-          {{
-            order.shippingAddress
-              .stateOrProvince
-          }}
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>SKU</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Shipment</th>
+              </tr>
+            </thead>
 
-          <br />
-
-          {{
-            order.shippingAddress
-              .postalCode
-          }}
-
-          ·
-
-          {{
-            order.shippingAddress
-              .countryCode
-          }}
-        </address>
-      </div>
-
-      <div class="items-section">
-        <h4>
-          Items
-        </h4>
-
-        <div class="order-items">
-          @for (
-            item of order.items;
-            track item.orderItemId
-          ) {
-            <article class="order-item">
-              <div class="item-main">
-                <strong>
-                  {{ item.productTitle }}
-                </strong>
-
-                <span class="muted">
-                  {{ item.variantName }}
-                </span>
-
-                <span class="sku">
-                  SKU:
-                  {{ item.sellerSku }}
-                </span>
-              </div>
-
-              <div class="item-value">
-                <span class="detail-label">
-                  Quantity
-                </span>
-
-                <strong>
-                  {{ item.quantity }}
-                </strong>
-              </div>
-
-              <div class="item-value">
-                <span class="detail-label">
-                  Unit price
-                </span>
-
-                <strong>
-                  {{
-                    item.unitPriceAmount
-                      | currency:
-                        item.currencyCode
-                  }}
-                </strong>
-              </div>
-
-              <div class="item-value total">
-                <span class="detail-label">
-                  Line total
-                </span>
-
-                <strong>
-                  {{
-                    item.lineTotal
-                      | currency:
-                        item.currencyCode
-                  }}
-                </strong>
-              </div>
-            </article>
-          }
+            <tbody>
+              @for (
+                item of order.items;
+                track item.orderItemId
+              ) {
+                <tr>
+                  <td data-label="Product">
+                    {{ item.productTitle }}
+                    <small>
+                      {{ item.variantName }}
+                    </small>
+                  </td>
+                  <td data-label="SKU">{{ item.sellerSku }}</td>
+                  <td data-label="Quantity">{{ item.quantity }}</td>
+                  <td data-label="Price">
+                    {{
+                      item.lineTotal
+                        | currency:
+                          item.currencyCode
+                    }}
+                  </td>
+                  <td data-label="Shipment">
+                    @if (item.shippedAtUtc) {
+                      {{
+                        item.shippedAtUtc
+                          | date: 'medium'
+                      }}
+                    } @else {
+                      Pending
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
         </div>
-      </div>
+      </article>
+    }
+  </div>
 
-      <div class="order-total">
-        <span>
-          Seller subtotal
-        </span>
+  <div class="pagination">
+    <button
+      type="button"
+      [disabled]="page() <= 1"
+      (click)="loadOrders(page() - 1)"
+    >
+      Previous
+    </button>
 
-        <strong>
-          {{
-            order.sellerSubtotal
-              | currency:
-                order.currencyCode
-          }}
-        </strong>
-      </div>
-    </section>
-  }
+    <span>Page {{ page() }}</span>
+
+    <button
+      type="button"
+      [disabled]="!hasNextPage()"
+      (click)="loadOrders(page() + 1)"
+    >
+      Next
+    </button>
+  </div>
 }

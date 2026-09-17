@@ -30,6 +30,67 @@ export interface MySeller {
   roles: SellerRole[];
 }
 
+export interface CreateSellerRequest {
+  displayName: string;
+  legalBusinessName: string;
+}
+
+export interface SellerOnboardingResponse {
+  sellerId: string;
+  displayName: string;
+  legalBusinessName: string;
+  sellerStatus: SellerStatus;
+  ownerMemberId: string;
+  memberStatus: SellerMemberStatus;
+  ownerRoleId: string;
+  role: SellerRole;
+  createdAtUtc: string;
+}
+
+export interface SellerLifecycleResponse {
+  sellerId: string;
+  displayName: string;
+  legalBusinessName: string;
+  status: SellerStatus;
+  approvedAtUtc: string | null;
+  createdAtUtc: string;
+  updatedAtUtc: string | null;
+}
+
+export interface SellerOwnerAccess {
+  sellerId: string;
+  access: string;
+  message: string;
+}
+
+export interface SellerInvitation {
+  sellerId: string;
+  sellerName: string;
+  memberId: string;
+  roles: SellerRole[];
+}
+
+export interface SellerRoleDefinition {
+  name: SellerRole;
+  description: string;
+}
+
+export interface SellerMember {
+  memberId: string;
+  sellerId: string;
+  userId: string;
+  email: string;
+  status: SellerMemberStatus;
+  roles: SellerRole[];
+  warehouseIds: string[];
+  invitedAtUtc: string;
+  joinedAtUtc: string | null;
+}
+
+export interface InviteSellerMemberRequest {
+  email: string;
+  role: SellerRole;
+}
 
 export type SellerListingStatus =
   | 'Draft'
@@ -42,20 +103,16 @@ export type SellerListingStatus =
 export interface SellerListing {
   listingId: string;
   sellerId: string;
-
   productId: string;
   productTitle: string;
   brandName: string;
-
   productVariantId: string;
   variantName: string;
   variantCode: string;
-
   sellerSku: string;
   priceAmount: number;
   currencyCode: string;
   status: SellerListingStatus;
-
   rowVersion: string;
   createdAtUtc: string;
 }
@@ -91,50 +148,112 @@ export interface SellerListingRowVersionRequest {
   rowVersion: string;
 }
 
-export interface ShippingAddress {
+export type WarehouseStatus =
+  | 'Draft'
+  | 'Active'
+  | 'TemporarilyClosed'
+  | 'Inactive';
+
+export interface WarehouseAddress {
   line1: string;
+  line2: string | null;
   city: string;
   stateOrProvince: string;
   postalCode: string;
   countryCode: string;
+}
+
+export interface Warehouse {
+  warehouseId: string;
+  sellerId: string;
+  name: string;
+  code: string;
+  status: WarehouseStatus;
+  address: WarehouseAddress;
+  createdAtUtc: string;
+  updatedAtUtc: string | null;
+}
+
+export interface CreateWarehouseRequest {
+  name: string;
+  code: string;
+  address: WarehouseAddress;
+}
+
+export interface InventoryItem {
+  inventoryItemId: string;
+  sellerId: string;
+  warehouseId: string;
+  warehouseName: string;
+  warehouseCode: string;
+  sellerListingId: string;
+  sellerSku: string;
+  productVariantId: string;
+  onHandQuantity: number;
+  reservedQuantity: number;
+  availableQuantity: number;
+  rowVersion: string;
+  createdAtUtc: string;
+  updatedAtUtc: string | null;
+}
+
+export interface CreateInventoryItemRequest {
+  warehouseId: string;
+  sellerListingId: string;
+  initialQuantity: number;
+}
+
+export interface InventoryQuantityRequest {
+  quantity: number;
+  rowVersion: string;
+}
+
+export type OrderStatus =
+  | 'PendingPayment'
+  | 'Cancelled'
+  | 'Expired'
+  | 'Paid'
+  | 'PartiallyShipped'
+  | 'Shipped';
+
+export interface ShippingAddress {
+  line1: string | null;
   line2: string | null;
+  city: string | null;
+  stateOrProvince: string | null;
+  postalCode: string | null;
+  countryCode: string | null;
 }
 
 export interface SellerOrderItem {
   orderItemId: string;
   sellerId: string;
   sellerDisplayName: string;
-
   listingId: string;
   productVariantId: string;
-
   productTitle: string;
   variantName: string;
   sellerSku: string;
-
   unitPriceAmount: number;
   currencyCode: string;
   quantity: number;
   lineTotal: number;
+  shippedAtUtc: string | null;
 }
 
 export interface SellerOrder {
   orderId: string;
   orderNumber: string;
-  status: string;
-
+  status: OrderStatus;
   sellerSubtotal: number;
   currencyCode: string;
-
   recipientName: string;
   phone: string;
-
   shippingAddress: ShippingAddress;
-
   items: SellerOrderItem[];
-
   createdAtUtc: string;
   expiresAtUtc: string;
+  paymentMode: string | null;
 }
 
 export interface PagedSellerOrders {

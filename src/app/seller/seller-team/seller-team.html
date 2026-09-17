@@ -1,1 +1,254 @@
-<p>seller-team works!</p>
+<header class="pageHeader">
+  <h2>Team</h2>
+
+  <button
+    type="button"
+    [disabled]="isLoading()"
+    (click)="load()"
+  >
+    Refresh
+  </button>
+</header>
+
+@if (errorMessage()) {
+  <p class="message error" role="alert">
+    {{ errorMessage() }}
+  </p>
+}
+
+@if (successMessage()) {
+  <p class="message success" role="status">
+    {{ successMessage() }}
+  </p>
+}
+
+<section>
+  <h3>Invite member</h3>
+
+  <form
+    class="inviteForm"
+    [formGroup]="inviteForm"
+    (ngSubmit)="invite()"
+  >
+    <label>
+      Email
+      <input
+        type="email"
+        formControlName="email"
+      />
+    </label>
+
+    <label>
+      Role
+      <select formControlName="role">
+        @for (
+          role of roles();
+          track role.name
+        ) {
+          <option [value]="role.name">
+            {{ role.name }}
+          </option>
+        }
+      </select>
+    </label>
+
+    <button
+      type="submit"
+      [disabled]="isInviting()"
+    >
+      {{ isInviting() ? 'Sending' : 'Invite' }}
+    </button>
+  </form>
+</section>
+
+<section>
+  <h3>Members</h3>
+
+  @if (isLoading()) {
+    <p>Loading</p>
+  } @else if (members().length === 0) {
+    <p>No members</p>
+  } @else {
+    <div class="tableWrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Roles</th>
+            <th>Warehouses</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (
+            member of members();
+            track member.memberId
+          ) {
+            <tr>
+              <td data-label="Email">{{ member.email }}</td>
+              <td data-label="Status">{{ member.status }}</td>
+              <td data-label="Roles">
+                {{
+                  member.roles.length > 0
+                    ? member.roles.join(', ')
+                    : 'None'
+                }}
+              </td>
+              <td data-label="Warehouses">
+                {{ member.warehouseIds.length }}
+              </td>
+              <td data-label="Action">
+                <button
+                  type="button"
+                  (click)="
+                    loadMember(member.memberId)
+                  "
+                >
+                  Manage
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
+
+@if (selectedMember(); as member) {
+  <section>
+    <div class="sectionHeader">
+      <div>
+        <h3>{{ member.email }}</h3>
+        <span>{{ member.status }}</span>
+      </div>
+
+      <button
+        type="button"
+        (click)="selectedMember.set(null)"
+      >
+        Close
+      </button>
+    </div>
+
+    <div class="memberActions">
+      @if (member.status === 'Active') {
+        <button
+          type="button"
+          [disabled]="busyMemberId() !== null"
+          (click)="suspend(member)"
+        >
+          Suspend
+        </button>
+      }
+
+      @if (member.status === 'Suspended') {
+        <button
+          type="button"
+          [disabled]="busyMemberId() !== null"
+          (click)="reactivate(member)"
+        >
+          Reactivate
+        </button>
+      }
+
+      @if (member.status !== 'Removed') {
+        <button
+          type="button"
+          [disabled]="busyMemberId() !== null"
+          (click)="remove(member)"
+        >
+          Remove
+        </button>
+      }
+    </div>
+
+    <div class="managementGrid">
+      <div>
+        <h4>Roles</h4>
+
+        @for (
+          role of roles();
+          track role.name
+        ) {
+          <label class="checkRow">
+            <input
+              type="checkbox"
+              [checked]="
+                member.roles.includes(role.name)
+              "
+              [disabled]="
+                member.status === 'Removed' ||
+                busyMemberId() !== null
+              "
+              (change)="
+                toggleRole(member, role.name)
+              "
+            />
+            {{ role.name }}
+          </label>
+        }
+      </div>
+
+      <div>
+        <h4>Warehouses</h4>
+
+        @if (warehouses().length === 0) {
+          <p>No warehouses</p>
+        }
+
+        @for (
+          warehouse of warehouses();
+          track warehouse.warehouseId
+        ) {
+          <label class="checkRow">
+            <input
+              type="checkbox"
+              [checked]="
+                member.warehouseIds.includes(
+                  warehouse.warehouseId
+                )
+              "
+              [disabled]="
+                member.status === 'Removed' ||
+                busyMemberId() !== null
+              "
+              (change)="
+                toggleWarehouse(
+                  member,
+                  warehouse.warehouseId
+                )
+              "
+            />
+            {{ warehouse.name }}
+            {{ warehouse.code }}
+          </label>
+        }
+      </div>
+    </div>
+
+    <dl>
+      <div>
+        <dt>Invited</dt>
+        <dd>
+          {{ member.invitedAtUtc | date: 'medium' }}
+        </dd>
+      </div>
+
+      <div>
+        <dt>Joined</dt>
+        <dd>
+          @if (member.joinedAtUtc) {
+            {{
+              member.joinedAtUtc | date: 'medium'
+            }}
+          } @else {
+            Not joined
+          }
+        </dd>
+      </div>
+    </dl>
+  </section>
+}

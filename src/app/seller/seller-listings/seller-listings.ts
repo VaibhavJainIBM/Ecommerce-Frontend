@@ -27,15 +27,11 @@ import {
 import { ProductApi } from '../../catalog/product-api';
 import { SellerApi } from '../seller-api';
 import { SellerContext } from '../seller-context';
+import { getSellerError } from '../seller-error';
 import {
   SellerListing,
   SellerListingStatus,
 } from '../seller.models';
-
-interface ApiProblem {
-  detail?: string;
-  errors?: Record<string, string[]>;
-}
 
 interface SelectedCatalogVariant {
   product: CatalogProduct;
@@ -59,26 +55,17 @@ export class SellerListings implements OnInit {
   protected readonly sellerContext =
     inject(SellerContext);
 
-  protected readonly catalogProducts =
-    signal<CatalogProduct[]>([]);
-
-  protected readonly selectedCatalogVariant =
-    signal<SelectedCatalogVariant | null>(null);
-
-  protected readonly catalogSearch = signal('');
-  protected readonly catalogPage = signal(1);
-  protected readonly catalogTotalPages = signal(0);
-  protected readonly catalogTotalCount = signal(0);
-  protected readonly isCatalogLoading = signal(false);
-  protected readonly catalogErrorMessage = signal('');
-
-  private readonly lastSuggestedSku = signal('');
-
   protected readonly listings =
     signal<SellerListing[]>([]);
 
   protected readonly selectedListing =
     signal<SellerListing | null>(null);
+
+  protected readonly catalogProducts =
+    signal<CatalogProduct[]>([]);
+
+  protected readonly selectedCatalogVariant =
+    signal<SelectedCatalogVariant | null>(null);
 
   protected readonly statusFilter =
     signal<SellerListingStatus | ''>('');
@@ -87,18 +74,25 @@ export class SellerListings implements OnInit {
   protected readonly totalPages = signal(0);
   protected readonly totalCount = signal(0);
 
+  protected readonly catalogPage = signal(1);
+  protected readonly catalogTotalPages = signal(0);
+  protected readonly catalogTotalCount = signal(0);
+
   protected readonly isLoading = signal(false);
+  protected readonly isCatalogLoading = signal(false);
   protected readonly isCreating = signal(false);
   protected readonly isLoadingDetails = signal(false);
-
   protected readonly busyListingId =
     signal<string | null>(null);
 
-  protected readonly errorMessage = signal('');
-  protected readonly successMessage = signal('');
+  private readonly priceDrafts = new Map<
+    string,
+    { price: string; currency: string }
+  >();
 
-  protected readonly pageSize = 20;
-  protected readonly catalogPageSize = 10;
+  protected readonly errorMessage = signal('');
+  protected readonly catalogError = signal('');
+  protected readonly successMessage = signal('');
 
   protected readonly statusOptions:
     SellerListingStatus[] = [
@@ -110,12 +104,17 @@ export class SellerListings implements OnInit {
       'Archived',
     ];
 
+  protected readonly catalogSearch =
+    new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.maxLength(100)],
+    });
+
   protected readonly createForm = new FormGroup({
     productVariantId: new FormControl('', {
       nonNullable: true,
       validators: [Validators.required],
     }),
-
     sellerSku: new FormControl('', {
       nonNullable: true,
       validators: [
@@ -124,7 +123,6 @@ export class SellerListings implements OnInit {
         Validators.pattern(/^[A-Za-z0-9._-]+$/),
       ],
     }),
-
     priceAmount: new FormControl(0, {
       nonNullable: true,
       validators: [
@@ -133,7 +131,6 @@ export class SellerListings implements OnInit {
         Validators.pattern(/^\d+(\.\d{1,2})?$/),
       ],
     }),
-
     currencyCode: new FormControl('INR', {
       nonNullable: true,
       validators: [
@@ -165,32 +162,20 @@ export class SellerListings implements OnInit {
     return seller.sellerId;
   }
 
-  protected loadCatalog(
-    search = this.catalogSearch(),
-    page = 1,
-  ): void {
-    if (page < 1) {
+  protected loadCatalog(page = 1): void {
+    if (this.catalogSearch.invalid || page < 1) {
+      this.catalogSearch.markAsTouched();
       return;
     }
 
-    const searchTerm = search.trim();
-
-    if (searchTerm.length > 100) {
-      this.catalogErrorMessage.set(
-        'Catalog search cannot exceed 100 characters.',
-      );
-      return;
-    }
-
-    this.catalogSearch.set(searchTerm);
     this.isCatalogLoading.set(true);
-    this.catalogErrorMessage.set('');
+    this.catalogError.set('');
 
     this.productApi
       .searchProducts(
-        searchTerm,
+        this.catalogSearch.value,
         page,
-        this.catalogPageSize,
+        10,
       )
       .pipe(
         finalize(() =>
@@ -208,59 +193,54 @@ export class SellerListings implements OnInit {
             response.totalCount,
           );
         },
-
         error: (error: HttpErrorResponse) => {
-          this.catalogErrorMessage.set(
-            this.readCatalogError(error),
+          this.catalogError.set(
+            getSellerError(
+              error,
+              'Could not load the catalog.',
+            ),
           );
         },
       });
   }
 
-  protected searchCatalog(
-    search: string,
-    event?: Event,
-  ): void {
-    event?.preventDefault();
-    this.loadCatalog(search, 1);
-  }
-
-  protected clearCatalogSearch(): void {
-    this.loadCatalog('', 1);
-  }
-
-  protected selectCatalogVariant(
+  protected selectVariant(
     product: CatalogProduct,
     variant: CatalogVariant,
   ): void {
-    this.createForm.controls.productVariantId.setValue(
-      variant.variantId,
-    );
-
     this.selectedCatalogVariant.set({
       product,
       variant,
     });
 
+    this.createForm.controls.productVariantId
+      .setValue(variant.variantId);
+
     const skuControl =
       this.createForm.controls.sellerSku;
 
-    const currentSku = skuControl.value.trim();
-
-    if (
-      currentSku &&
-      currentSku !== this.lastSuggestedSku()
-    ) {
-      return;
+    if (!skuControl.value.trim()) {
+      skuControl.setValue(
+        this.makeSku(product, variant),
+      );
     }
+  }
 
-    const suggestedSku = this.createSkuSuggestion(
-      product,
-      variant,
-    );
-
-    skuControl.setValue(suggestedSku);
-    this.lastSuggestedSku.set(suggestedSku);
+  private makeSku(
+    product: CatalogProduct,
+    variant: CatalogVariant,
+  ): string {
+    return [
+      product.brandName,
+      product.title,
+      variant.variantCode,
+    ]
+      .join('_')
+      .toUpperCase()
+      .replace(/[^A-Z0-9._-]+/g, '_')
+      .replace(/_+/g, '_')
+      .replace(/^_+|_+$/g, '')
+      .slice(0, 64);
   }
 
   protected loadListings(page = 1): void {
@@ -271,14 +251,11 @@ export class SellerListings implements OnInit {
     this.isLoading.set(true);
     this.errorMessage.set('');
 
-    const status =
-      this.statusFilter() || undefined;
-
     this.sellerApi
       .getListings(this.sellerId, {
         page,
-        pageSize: this.pageSize,
-        status,
+        pageSize: 20,
+        status: this.statusFilter() || undefined,
       })
       .pipe(
         finalize(() => this.isLoading.set(false)),
@@ -290,10 +267,12 @@ export class SellerListings implements OnInit {
           this.totalPages.set(response.totalPages);
           this.totalCount.set(response.totalCount);
         },
-
         error: (error: HttpErrorResponse) => {
           this.errorMessage.set(
-            this.readError(error),
+            getSellerError(
+              error,
+              'Could not load listings.',
+            ),
           );
         },
       });
@@ -320,35 +299,21 @@ export class SellerListings implements OnInit {
       !this.canCreateListing()
     ) {
       this.createForm.markAllAsTouched();
-
       this.errorMessage.set(
-        'Check the listing fields and try again.',
+        'Select a variant and complete the form.',
       );
       return;
     }
 
     const value = this.createForm.getRawValue();
-
-    if (!value.productVariantId.trim()) {
-      this.errorMessage.set(
-        'Product variant ID is required.',
-      );
-      return;
-    }
-
     this.isCreating.set(true);
 
     this.sellerApi
       .createListing(this.sellerId, {
         productVariantId:
-          value.productVariantId.trim(),
-
-        sellerSku:
-          value.sellerSku.trim(),
-
-        priceAmount:
-          value.priceAmount,
-
+          value.productVariantId,
+        sellerSku: value.sellerSku.trim(),
+        priceAmount: value.priceAmount,
         currencyCode:
           value.currencyCode.trim().toUpperCase(),
       })
@@ -358,7 +323,7 @@ export class SellerListings implements OnInit {
       .subscribe({
         next: (listing) => {
           this.selectedListing.set(listing);
-
+          this.selectedCatalogVariant.set(null);
           this.successMessage.set(
             'Draft listing created.',
           );
@@ -370,15 +335,14 @@ export class SellerListings implements OnInit {
             currencyCode: 'INR',
           });
 
-          this.selectedCatalogVariant.set(null);
-          this.lastSuggestedSku.set('');
-
           this.loadListings(1);
         },
-
         error: (error: HttpErrorResponse) => {
           this.errorMessage.set(
-            this.readError(error),
+            getSellerError(
+              error,
+              'Could not create the listing.',
+            ),
           );
         },
       });
@@ -389,7 +353,6 @@ export class SellerListings implements OnInit {
   ): void {
     this.isLoadingDetails.set(true);
     this.errorMessage.set('');
-    this.selectedListing.set(null);
 
     this.sellerApi
       .getListing(this.sellerId, listingId)
@@ -402,10 +365,12 @@ export class SellerListings implements OnInit {
         next: (listing) => {
           this.selectedListing.set(listing);
         },
-
         error: (error: HttpErrorResponse) => {
           this.errorMessage.set(
-            this.readError(error),
+            getSellerError(
+              error,
+              'Could not load the listing.',
+            ),
           );
         },
       });
@@ -413,39 +378,40 @@ export class SellerListings implements OnInit {
 
   protected updatePrice(
     listing: SellerListing,
-    priceText: string,
-    currencyText: string,
   ): void {
-    const trimmedPrice = priceText.trim();
+    const draft = this.priceDrafts.get(
+      listing.listingId,
+    );
+
+    const priceText =
+      draft?.price ?? String(listing.priceAmount);
+
+    const currencyText =
+      draft?.currency ?? listing.currencyCode;
+
+    const priceValue = priceText.trim();
+    const priceAmount = Number(priceValue);
     const currency =
       currencyText.trim().toUpperCase();
 
-    const validPrice =
-      /^\d+(\.\d{1,2})?$/.test(trimmedPrice);
-
-    const priceAmount = Number(trimmedPrice);
-
     if (
-      !validPrice ||
+      !/^\d+(\.\d{1,2})?$/.test(priceValue) ||
       !Number.isFinite(priceAmount) ||
       priceAmount <= 0
     ) {
-      this.errorMessage.set(
-        'Enter a positive price with at most two decimal places.',
-      );
+      this.errorMessage.set('Enter a valid price.');
       return;
     }
 
     if (!/^[A-Z]{3}$/.test(currency)) {
       this.errorMessage.set(
-        'Currency must contain exactly three letters.',
+        'Enter a three letter currency code.',
       );
       return;
     }
 
     this.runListingAction(
       listing.listingId,
-
       this.sellerApi.updateListingPrice(
         this.sellerId,
         listing.listingId,
@@ -455,9 +421,29 @@ export class SellerListings implements OnInit {
           rowVersion: listing.rowVersion,
         },
       ),
-
       'Price updated.',
     );
+  }
+
+  protected changePriceDraft(
+    listing: SellerListing,
+    field: 'price' | 'currency',
+    event: Event,
+  ): void {
+    const value =
+      (event.target as HTMLInputElement).value;
+
+    const current = this.priceDrafts.get(
+      listing.listingId,
+    ) ?? {
+      price: String(listing.priceAmount),
+      currency: listing.currencyCode,
+    };
+
+    this.priceDrafts.set(listing.listingId, {
+      ...current,
+      [field]: value,
+    });
   }
 
   protected submitForReview(
@@ -465,15 +451,11 @@ export class SellerListings implements OnInit {
   ): void {
     this.runListingAction(
       listing.listingId,
-
       this.sellerApi.submitListingForReview(
         this.sellerId,
         listing.listingId,
-        {
-          rowVersion: listing.rowVersion,
-        },
+        { rowVersion: listing.rowVersion },
       ),
-
       'Listing submitted for review.',
     );
   }
@@ -481,26 +463,17 @@ export class SellerListings implements OnInit {
   protected archiveListing(
     listing: SellerListing,
   ): void {
-    const confirmed = window.confirm(
-      `Archive ${listing.productTitle}? ` +
-      'Your current API has no unarchive endpoint.',
-    );
-
-    if (!confirmed) {
+    if (!window.confirm('Archive this listing?')) {
       return;
     }
 
     this.runListingAction(
       listing.listingId,
-
       this.sellerApi.archiveListing(
         this.sellerId,
         listing.listingId,
-        {
-          rowVersion: listing.rowVersion,
-        },
+        { rowVersion: listing.rowVersion },
       ),
-
       'Listing archived.',
     );
   }
@@ -551,20 +524,17 @@ export class SellerListings implements OnInit {
   protected canArchive(
     listing: SellerListing,
   ): boolean {
-    return (
-      this.sellerContext.canManage() &&
-      listing.status !== 'Archived'
-    );
+    return listing.status !== 'Archived';
   }
 
   private runListingAction(
     listingId: string,
     request: Observable<SellerListing>,
-    successMessage: string,
+    message: string,
   ): void {
+    this.busyListingId.set(listingId);
     this.errorMessage.set('');
     this.successMessage.set('');
-    this.busyListingId.set(listingId);
 
     request
       .pipe(
@@ -573,157 +543,41 @@ export class SellerListings implements OnInit {
         ),
       )
       .subscribe({
-        next: (updatedListing) => {
-          this.replaceListing(updatedListing);
-
-          this.successMessage.set(
-            successMessage,
-          );
-
+        next: (updated) => {
+          this.replaceListing(updated);
+          this.successMessage.set(message);
           this.loadListings(this.page());
         },
-
         error: (error: HttpErrorResponse) => {
-          const message = this.readError(error);
+          this.errorMessage.set(
+            getSellerError(
+              error,
+              'Could not update the listing.',
+            ),
+          );
 
           if (error.status === 409) {
-            // The rowVersion is stale.
-            this.selectedListing.set(null);
             this.loadListings(this.page());
-
-            this.errorMessage.set(
-              `${message} The listings were refreshed; try again.`,
-            );
-
-            return;
           }
-
-          this.errorMessage.set(message);
         },
       });
   }
 
   private replaceListing(
-    updatedListing: SellerListing,
+    updated: SellerListing,
   ): void {
-    this.listings.update((listings) =>
-      listings.map((listing) =>
-        listing.listingId ===
-        updatedListing.listingId
-          ? updatedListing
-          : listing,
+    this.listings.update((items) =>
+      items.map((item) =>
+        item.listingId === updated.listingId
+          ? updated
+          : item,
       ),
     );
 
     this.selectedListing.update((current) =>
-      current?.listingId ===
-      updatedListing.listingId
-        ? updatedListing
+      current?.listingId === updated.listingId
+        ? updated
         : current,
     );
-  }
-
-  private createSkuSuggestion(
-    product: CatalogProduct,
-    variant: CatalogVariant,
-  ): string {
-    const suggestedSku = [
-      product.brandName,
-      product.title,
-      variant.variantCode,
-    ]
-      .join('-')
-      .normalize('NFKD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toUpperCase()
-      .replace(/[^A-Z0-9._-]+/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^[._-]+|[._-]+$/g, '')
-      .slice(0, 64);
-
-    return suggestedSku ||
-      `SKU-${variant.variantId.slice(0, 8).toUpperCase()}`;
-  }
-
-  private readCatalogError(
-    error: HttpErrorResponse,
-  ): string {
-    if (error.status === 0) {
-      return (
-        'Cannot reach the catalog API. Check that the ' +
-        'backend is running.'
-      );
-    }
-
-    const problem =
-      typeof error.error === 'object' &&
-      error.error !== null
-        ? error.error as ApiProblem
-        : null;
-
-    if (problem?.errors) {
-      const messages =
-        Object.values(problem.errors).flat();
-
-      if (messages.length > 0) {
-        return messages.join(' ');
-      }
-    }
-
-    if (problem?.detail) {
-      return problem.detail;
-    }
-
-    return 'The shared product catalog could not be loaded.';
-  }
-
-  private readError(
-    error: HttpErrorResponse,
-  ): string {
-    if (error.status === 0) {
-      return (
-        'Cannot reach the API. Check that the ' +
-        'backend is running.'
-      );
-    }
-
-    const problem =
-      typeof error.error === 'object' &&
-      error.error !== null
-        ? error.error as ApiProblem
-        : null;
-
-    if (problem?.errors) {
-      const messages =
-        Object.values(problem.errors).flat();
-
-      if (messages.length > 0) {
-        return messages.join(' ');
-      }
-    }
-
-    if (problem?.detail) {
-      return problem.detail;
-    }
-
-    if (error.status === 403) {
-      return (
-        'Owner or Manager seller access is required.'
-      );
-    }
-
-    if (error.status === 404) {
-      return (
-        'The seller, product variant, or listing was not found.'
-      );
-    }
-
-    if (error.status === 409) {
-      return (
-        'The listing conflicts with current server data.'
-      );
-    }
-
-    return 'The listing request failed.';
   }
 }

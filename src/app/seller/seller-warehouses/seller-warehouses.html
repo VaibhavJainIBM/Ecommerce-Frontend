@@ -1,1 +1,236 @@
-<p>seller-warehouses works!</p>
+<header class="pageHeader">
+  <h2>Warehouses</h2>
+
+  <button
+    type="button"
+    [disabled]="isLoading()"
+    (click)="loadWarehouses()"
+  >
+    Refresh
+  </button>
+</header>
+
+@if (errorMessage()) {
+  <p class="message error" role="alert">
+    {{ errorMessage() }}
+  </p>
+}
+
+@if (successMessage()) {
+  <p class="message success" role="status">
+    {{ successMessage() }}
+  </p>
+}
+
+@if (sellerContext.canManage()) {
+  <section>
+    <h3>Create warehouse</h3>
+
+    <form
+      class="warehouseForm"
+      [formGroup]="createForm"
+      (ngSubmit)="createWarehouse()"
+    >
+      <label>
+        Name
+        <input
+          type="text"
+          formControlName="name"
+          maxlength="150"
+        />
+      </label>
+
+      <label>
+        Code
+        <input
+          type="text"
+          formControlName="code"
+          maxlength="50"
+        />
+      </label>
+
+      <label class="wide">
+        Address line 1
+        <input
+          type="text"
+          formControlName="line1"
+          maxlength="200"
+        />
+      </label>
+
+      <label class="wide">
+        Address line 2
+        <input
+          type="text"
+          formControlName="line2"
+          maxlength="200"
+        />
+      </label>
+
+      <label>
+        City
+        <input
+          type="text"
+          formControlName="city"
+          maxlength="100"
+        />
+      </label>
+
+      <label>
+        State
+        <input
+          type="text"
+          formControlName="stateOrProvince"
+          maxlength="100"
+        />
+      </label>
+
+      <label>
+        Postal code
+        <input
+          type="text"
+          formControlName="postalCode"
+          maxlength="20"
+        />
+      </label>
+
+      <label>
+        Country
+        <input
+          type="text"
+          formControlName="countryCode"
+          maxlength="2"
+        />
+      </label>
+
+      <button
+        type="submit"
+        [disabled]="
+          isSaving() ||
+          !canManageWarehouses()
+        "
+      >
+        {{ isSaving() ? 'Saving' : 'Create' }}
+      </button>
+    </form>
+  </section>
+}
+
+<section>
+  <h3>Warehouse list</h3>
+
+  @if (isLoading()) {
+    <p>Loading</p>
+  } @else if (warehouses().length === 0) {
+    <p>No warehouses</p>
+  } @else {
+    <div class="tableWrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Code</th>
+            <th>Status</th>
+            <th>City</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (
+            warehouse of warehouses();
+            track warehouse.warehouseId
+          ) {
+            <tr>
+              <td data-label="Name">{{ warehouse.name }}</td>
+              <td data-label="Code">{{ warehouse.code }}</td>
+              <td data-label="Status">{{ warehouse.status }}</td>
+              <td data-label="City">
+                {{ warehouse.address.city }}
+              </td>
+              <td data-label="Actions">
+                <div class="actions">
+                  <button
+                    type="button"
+                    (click)="
+                      loadWarehouse(
+                        warehouse.warehouseId
+                      )
+                    "
+                  >
+                    Details
+                  </button>
+
+                  @if (
+                    sellerContext.canManage() &&
+                    warehouse.status !== 'Active'
+                  ) {
+                    <button
+                      type="button"
+                      [disabled]="
+                        busyWarehouseId() !== null ||
+                        !canManageWarehouses()
+                      "
+                      (click)="
+                        activateWarehouse(warehouse)
+                      "
+                    >
+                      Activate
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
+
+@if (selectedWarehouse(); as warehouse) {
+  <section>
+    <div class="sectionHeader">
+      <h3>Warehouse details</h3>
+
+      <button
+        type="button"
+        (click)="selectedWarehouse.set(null)"
+      >
+        Close
+      </button>
+    </div>
+
+    <dl>
+      <div>
+        <dt>Name</dt>
+        <dd>{{ warehouse.name }}</dd>
+      </div>
+      <div>
+        <dt>Code</dt>
+        <dd>{{ warehouse.code }}</dd>
+      </div>
+      <div>
+        <dt>Status</dt>
+        <dd>{{ warehouse.status }}</dd>
+      </div>
+      <div>
+        <dt>Address</dt>
+        <dd>
+          {{ warehouse.address.line1 }}
+          {{ warehouse.address.line2 }}
+          {{ warehouse.address.city }}
+          {{ warehouse.address.stateOrProvince }}
+          {{ warehouse.address.postalCode }}
+          {{ warehouse.address.countryCode }}
+        </dd>
+      </div>
+      <div>
+        <dt>Created</dt>
+        <dd>
+          {{ warehouse.createdAtUtc | date: 'medium' }}
+        </dd>
+      </div>
+    </dl>
+  </section>
+}

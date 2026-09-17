@@ -1,0 +1,142 @@
+<header class="pageHeader">
+  <div>
+    <h2>Listing reviews</h2>
+    <p class="muted">{{ totalCount() }} listings</p>
+  </div>
+
+  <button
+    type="button"
+    [disabled]="isLoading()"
+    (click)="load(page())"
+  >
+    Refresh
+  </button>
+</header>
+
+<form
+  class="filterForm"
+  (ngSubmit)="load(1)"
+>
+  <label>
+    Search
+    <input
+      type="search"
+      [formControl]="search"
+      maxlength="100"
+    />
+  </label>
+
+  <label>
+    Status
+    <select
+      [value]="status()"
+      (change)="changeStatus($event)"
+    >
+      <option value="">All</option>
+
+      @for (item of statuses; track item) {
+        <option [value]="item">{{ item }}</option>
+      }
+    </select>
+  </label>
+
+  <button type="submit" [disabled]="isLoading()">
+    Search
+  </button>
+</form>
+
+@if (errorMessage()) {
+  <p class="message error" role="alert">
+    {{ errorMessage() }}
+  </p>
+}
+
+@if (successMessage()) {
+  <p class="message success" role="status">
+    {{ successMessage() }}
+  </p>
+}
+
+@if (isLoading()) {
+  <p>Loading</p>
+} @else if (listings().length === 0) {
+  <p>No listings</p>
+} @else {
+  <div class="records">
+    @for (
+      listing of listings();
+      track listing.listingId
+    ) {
+      <article class="record recordGrid">
+        <div>
+          <span class="metaLabel">Product</span>
+          <strong>
+            {{ listing.brandName }}
+            {{ listing.productTitle }}
+          </strong>
+          <small>
+            {{ listing.variantName }}
+            {{ listing.variantCode }}
+          </small>
+        </div>
+
+        <div>
+          <span class="metaLabel">Seller</span>
+          {{ listing.sellerDisplayName }}
+          <small>{{ listing.sellerSku }}</small>
+        </div>
+
+        <div>
+          <span class="metaLabel">Price</span>
+          {{
+            listing.priceAmount
+              | currency: listing.currencyCode
+          }}
+          <small>
+            {{ listing.createdAtUtc | date: 'mediumDate' }}
+          </small>
+        </div>
+
+        <div class="actions">
+          @if (listing.status === 'PendingReview') {
+            <button
+              type="button"
+              [disabled]="busyListingId() !== null"
+              (click)="approve(listing)"
+            >
+              {{
+                busyListingId() === listing.listingId
+                  ? 'Approving'
+                  : 'Approve'
+              }}
+            </button>
+          } @else {
+            <span>{{ listing.status }}</span>
+          }
+        </div>
+      </article>
+    }
+  </div>
+
+  @if (totalPages() > 1) {
+    <div class="pagination">
+      <button
+        type="button"
+        [disabled]="page() <= 1"
+        (click)="load(page() - 1)"
+      >
+        Previous
+      </button>
+
+      <span>{{ page() }} of {{ totalPages() }}</span>
+
+      <button
+        type="button"
+        [disabled]="page() >= totalPages()"
+        (click)="load(page() + 1)"
+      >
+        Next
+      </button>
+    </div>
+  }
+}
