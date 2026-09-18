@@ -25,3 +25,10 @@ export interface AuthUser {
 export const Roles = {
   Admin: 'PlatformAdmin',
 } as const;
+
+export interface RegisterRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+}

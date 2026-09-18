@@ -5,6 +5,7 @@ import {
   AuthResponse,
   AuthUser,
   LoginRequest,
+  RegisterRequest,
 } from './auth.models';
 
 @Injectable({
@@ -28,4 +29,15 @@ export class AuthApi {
       `${this.authUrl}/me`,
     );
   }
+
+  register(
+    request: RegisterRequest,
+  ): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(
+      `${this.authUrl}/register`,
+      request,
+    );
+  }
+
+
 }

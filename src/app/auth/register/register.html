@@ -1,0 +1,354 @@
+<div class="register-page">
+  <app-navbar>
+  </app-navbar>
+
+  <main class="register-main">
+    <section aria-labelledby="register-title">
+      <p class="eyebrow">Account</p>
+
+      <h1 id="register-title">
+        Create account
+      </h1>
+
+      <p class="introduction">
+        Create your customer account to shop,
+        place orders, or become a seller.
+      </p>
+
+      <form
+        [formGroup]="registerForm"
+        (ngSubmit)="onSubmit()"
+        novalidate
+      >
+        <div class="name-fields">
+          <div class="field">
+            <label for="firstName">
+              First name
+            </label>
+
+            <input
+              id="firstName"
+              type="text"
+              formControlName="firstName"
+              autocomplete="given-name"
+              maxlength="100"
+              placeholder="First name"
+              [attr.aria-invalid]="
+                firstName.touched &&
+                firstName.invalid
+              "
+              [attr.aria-describedby]="
+                firstName.touched &&
+                firstName.invalid
+                  ? 'first-name-error'
+                  : null
+              "
+            />
+
+            @if (
+              firstName.touched &&
+              (
+                firstName.hasError('required') ||
+                firstName.hasError('whitespace')
+              )
+            ) {
+              <p
+                class="error"
+                id="first-name-error"
+              >
+                First name is required.
+              </p>
+            } @else if (
+              firstName.touched &&
+              firstName.hasError('maxlength')
+            ) {
+              <p
+                class="error"
+                id="first-name-error"
+              >
+                First name cannot exceed
+                100 characters.
+              </p>
+            }
+          </div>
+
+          <div class="field">
+            <label for="lastName">
+              Last name
+            </label>
+
+            <input
+              id="lastName"
+              type="text"
+              formControlName="lastName"
+              autocomplete="family-name"
+              maxlength="100"
+              placeholder="Last name"
+              [attr.aria-invalid]="
+                lastName.touched &&
+                lastName.invalid
+              "
+              [attr.aria-describedby]="
+                lastName.touched &&
+                lastName.invalid
+                  ? 'last-name-error'
+                  : null
+              "
+            />
+
+            @if (
+              lastName.touched &&
+              (
+                lastName.hasError('required') ||
+                lastName.hasError('whitespace')
+              )
+            ) {
+              <p
+                class="error"
+                id="last-name-error"
+              >
+                Last name is required.
+              </p>
+            } @else if (
+              lastName.touched &&
+              lastName.hasError('maxlength')
+            ) {
+              <p
+                class="error"
+                id="last-name-error"
+              >
+                Last name cannot exceed
+                100 characters.
+              </p>
+            }
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="email">
+            Email address
+          </label>
+
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            autocomplete="email"
+            inputmode="email"
+            placeholder="you@example.com"
+            [attr.aria-invalid]="
+              email.touched && email.invalid
+            "
+            [attr.aria-describedby]="
+              email.touched && email.invalid
+                ? 'email-error'
+                : null
+            "
+          />
+
+          @if (
+            email.touched &&
+            email.hasError('required')
+          ) {
+            <p class="error" id="email-error">
+              Email is required.
+            </p>
+          } @else if (
+            email.touched &&
+            email.hasError('email')
+          ) {
+            <p class="error" id="email-error">
+              Enter a valid email address.
+            </p>
+          } @else if (
+            email.touched &&
+            email.hasError('duplicateEmail')
+          ) {
+            <p class="error" id="email-error">
+              An account with this email
+              already exists.
+            </p>
+          }
+        </div>
+
+        <div class="field">
+          <label for="password">
+            Password
+          </label>
+
+          <div class="password-field">
+            <input
+              id="password"
+              [type]="
+                showPassword()
+                  ? 'text'
+                  : 'password'
+              "
+              formControlName="password"
+              autocomplete="new-password"
+              placeholder="Create a password"
+              [attr.aria-invalid]="
+                password.touched &&
+                password.invalid
+              "
+              [attr.aria-describedby]="
+                password.touched &&
+                password.invalid
+                  ? 'password-error password-help'
+                  : 'password-help'
+              "
+            />
+
+            <button
+              class="password-toggle"
+              type="button"
+              (click)="togglePassword()"
+            >
+              {{
+                showPassword()
+                  ? 'Hide'
+                  : 'Show'
+              }}
+            </button>
+          </div>
+
+          <p
+            class="password-help"
+            id="password-help"
+          >
+            Use at least 8 characters with
+            uppercase, lowercase, number,
+            symbol, and 4 unique characters.
+          </p>
+
+          @if (
+            password.touched &&
+            password.hasError('required')
+          ) {
+            <p
+              class="error"
+              id="password-error"
+            >
+              Password is required.
+            </p>
+          } @else if (
+            password.touched &&
+            password.hasError(
+              'passwordPolicy'
+            )
+          ) {
+            <p
+              class="error"
+              id="password-error"
+            >
+              Password does not meet the
+              required rules.
+            </p>
+          }
+        </div>
+
+        <div class="field">
+          <label for="confirmPassword">
+            Confirm password
+          </label>
+
+          <div class="password-field">
+            <input
+              id="confirmPassword"
+              [type]="
+                showConfirmPassword()
+                  ? 'text'
+                  : 'password'
+              "
+              formControlName="confirmPassword"
+              autocomplete="new-password"
+              placeholder="Enter the password again"
+              [attr.aria-invalid]="
+                confirmPassword.touched &&
+                (
+                  confirmPassword.invalid ||
+                  registerForm.hasError(
+                    'passwordsMismatch'
+                  )
+                )
+              "
+              [attr.aria-describedby]="
+                confirmPassword.touched &&
+                (
+                  confirmPassword.invalid ||
+                  registerForm.hasError(
+                    'passwordsMismatch'
+                  )
+                )
+                  ? 'confirm-password-error'
+                  : null
+              "
+            />
+
+            <button
+              class="password-toggle"
+              type="button"
+              (click)="toggleConfirmPassword()"
+            >
+              {{
+                showConfirmPassword()
+                  ? 'Hide'
+                  : 'Show'
+              }}
+            </button>
+          </div>
+
+          @if (
+            confirmPassword.touched &&
+            confirmPassword.hasError('required')
+          ) {
+            <p
+              class="error"
+              id="confirm-password-error"
+            >
+              Confirm your password.
+            </p>
+          } @else if (
+            confirmPassword.touched &&
+            registerForm.hasError(
+              'passwordsMismatch'
+            )
+          ) {
+            <p
+              class="error"
+              id="confirm-password-error"
+            >
+              Passwords do not match.
+            </p>
+          }
+        </div>
+
+        <button
+          class="submit-button"
+          type="submit"
+          [disabled]="isSubmitting()"
+        >
+          {{
+            isSubmitting()
+              ? 'Creating account…'
+              : 'Create account'
+          }}
+        </button>
+
+        @if (errorMessage()) {
+          <p class="api-error" role="alert">
+            {{ errorMessage() }}
+          </p>
+        }
+      </form>
+
+      <p class="account-link">
+        Already have an account?
+
+        <a routerLink="/login">
+          Sign in
+        </a>
+      </p>
+    </section>
+  </main>
+</div>

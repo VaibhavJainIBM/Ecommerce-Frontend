@@ -1,53 +1,57 @@
 import { Routes } from '@angular/router';
-import { ProductList } from './catalog/product-list/product-list';
-import { Login } from './auth/login/login';
+
+import { AdminApi } from './admin/admin-api';
+import { AdminCatalog } from './admin/admin-catalog/admin-catalog';
+import { AdminDashboard } from './admin/admin-dashboard/admin-dashboard';
+import { AdminListingReviews } from './admin/admin-listing-reviews/admin-listing-reviews';
+import { AdminOverview } from './admin/admin-overview/admin-overview';
+import { AdminSellerReviews } from './admin/admin-seller-reviews/admin-seller-reviews';
 import { Account } from './auth/account/account';
 import { authGuard } from './auth/auth-guard';
-
-import { roleGuard } from './auth/role-guard';
 import { Roles } from './auth/auth.models';
 import { Forbidden } from './auth/forbidden/forbidden';
-import { AdminDashboard } from './admin/admin-dashboard/admin-dashboard';
-import { AdminOverview } from './admin/admin-overview/admin-overview';
-import { AdminCatalog } from './admin/admin-catalog/admin-catalog';
-import { AdminSellerReviews } from './admin/admin-seller-reviews/admin-seller-reviews';
-import { AdminListingReviews } from './admin/admin-listing-reviews/admin-listing-reviews';
-import { SellerDashboard } from './seller/seller-dashboard/seller-dashboard';
-
+import { Login } from './auth/login/login';
+import { Register } from './auth/register/register';
+import { roleGuard } from './auth/role-guard';
+import { ProductList } from './catalog/product-list/product-list';
 import { sellerAccessGuard } from './seller/seller-access-guard';
-import { SellerWorkspace } from './seller/seller-workspace/seller-workspace';
-import { SellerOverview } from './seller/seller-overview/seller-overview';
-import { SellerListings } from './seller/seller-listings/seller-listings';
-import { SellerWarehouses } from './seller/seller-warehouses/seller-warehouses';
-import { SellerInventory } from './seller/seller-inventory/seller-inventory';
-import { SellerOrders } from './seller/seller-orders/seller-orders';
-import { SellerTeam } from './seller/seller-team/seller-team';
-import { sellerRoleGuard } from './seller/seller-role-guard';
 import { sellerAreaGuard } from './seller/seller-area-guard';
-
+import { SellerDashboard } from './seller/seller-dashboard/seller-dashboard';
+import { SellerInventory } from './seller/seller-inventory/seller-inventory';
+import { SellerListings } from './seller/seller-listings/seller-listings';
+import { SellerOrders } from './seller/seller-orders/seller-orders';
+import { SellerOverview } from './seller/seller-overview/seller-overview';
+import { sellerRoleGuard } from './seller/seller-role-guard';
+import { SellerTeam } from './seller/seller-team/seller-team';
+import { SellerWarehouses } from './seller/seller-warehouses/seller-warehouses';
+import { SellerWorkspace } from './seller/seller-workspace/seller-workspace';
 
 export const routes: Routes = [
   {
     path: '',
     component: ProductList,
-    title: 'Storefront | IBM-Mart',
+    title: 'Storefront',
   },
   {
     path: 'login',
     component: Login,
-    title: 'Sign in | IBM-Mart',
+    title: 'Sign in',
+  },
+  {
+    path: 'register',
+    component: Register,
+    title: 'Create account',
   },
   {
     path: 'account',
     component: Account,
-    title: 'Account | IBM-Mart',
+    title: 'Account',
     canActivate: [authGuard],
   },
-
   {
     path: 'admin',
     component: AdminDashboard,
-    title: 'Admin | IBM-Mart',
+    title: 'Admin',
     canActivate: [authGuard, roleGuard],
     data: {
       roles: [Roles.Admin],
@@ -61,39 +65,40 @@ export const routes: Routes = [
       {
         path: 'overview',
         component: AdminOverview,
-        title: 'Admin overview | IBM-Mart',
+        title: 'Admin overview',
       },
       {
         path: 'catalog',
         component: AdminCatalog,
-        title: 'Admin catalog | IBM-Mart',
+        title: 'Admin catalog',
       },
       {
         path: 'sellers',
         component: AdminSellerReviews,
-        title: 'Seller reviews | IBM-Mart',
+        title: 'Seller reviews',
       },
       {
         path: 'listings',
         component: AdminListingReviews,
-        title: 'Listing reviews | IBM-Mart',
+        title: 'Listing reviews',
       },
     ],
   },
   {
     path: 'seller',
     component: SellerDashboard,
-    title: 'Seller | IBM-Mart',
-    canActivate: [authGuard, sellerAreaGuard],
+    title: 'Seller',
+    canActivate: [
+      authGuard,
+      sellerAreaGuard,
+    ],
   },
   {
     path: 'forbidden',
     component: Forbidden,
-    title: 'Access denied | IBM-Mart',
+    title: 'Access denied',
     canActivate: [authGuard],
   },
-
-
   {
     path: 'seller/:sellerId',
     component: SellerWorkspace,
@@ -111,21 +116,24 @@ export const routes: Routes = [
       {
         path: 'overview',
         component: SellerOverview,
-        title: 'Seller overview | IBM-Mart',
+        title: 'Seller overview',
       },
       {
         path: 'listings',
         component: SellerListings,
-        title: 'Listings | IBM-Mart',
+        title: 'Listings',
         canActivate: [sellerRoleGuard],
         data: {
-          sellerRoles: ['Owner', 'Manager'],
+          sellerRoles: [
+            'Owner',
+            'Manager',
+          ],
         },
       },
       {
         path: 'warehouses',
         component: SellerWarehouses,
-        title: 'Warehouses | IBM-Mart',
+        title: 'Warehouses',
         canActivate: [sellerRoleGuard],
         data: {
           sellerRoles: [
@@ -138,7 +146,7 @@ export const routes: Routes = [
       {
         path: 'inventory',
         component: SellerInventory,
-        title: 'Inventory | IBM-Mart',
+        title: 'Inventory',
         canActivate: [sellerRoleGuard],
         data: {
           sellerRoles: [
@@ -151,16 +159,19 @@ export const routes: Routes = [
       {
         path: 'orders',
         component: SellerOrders,
-        title: 'Orders | IBM-Mart',
+        title: 'Orders',
         canActivate: [sellerRoleGuard],
         data: {
-          sellerRoles: ['Owner', 'Manager'],
+          sellerRoles: [
+            'Owner',
+            'Manager',
+          ],
         },
       },
       {
         path: 'team',
         component: SellerTeam,
-        title: 'Seller team | IBM-Mart',
+        title: 'Seller team',
         canActivate: [sellerRoleGuard],
         data: {
           sellerRoles: ['Owner'],
@@ -168,8 +179,6 @@ export const routes: Routes = [
       },
     ],
   },
-
-
   {
     path: '**',
     redirectTo: '',

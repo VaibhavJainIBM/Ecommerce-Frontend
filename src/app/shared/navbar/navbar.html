@@ -1,25 +1,45 @@
 <header class="navbar">
-  <a class="brand" routerLink="/">Ecommerce</a>
+  <a class="brand" routerLink="/">
+    Ecommerce
+  </a>
 
   <nav aria-label="Primary navigation">
-    <a routerLink="/">Shop</a>
+    <a routerLink="/">
+      Shop
+    </a>
 
     @if (authSession.isAuthenticated()) {
       @if (authSession.hasRole(roles.Admin)) {
-        <a routerLink="/admin">Admin</a>
+        <a routerLink="/admin">
+          Admin
+        </a>
       } @else {
-        <a routerLink="/seller">Seller</a>
+        <a routerLink="/seller">
+          Seller
+        </a>
       }
 
       <a routerLink="/account">
-        {{ authSession.user()?.firstName || 'Account' }}
+        {{
+          authSession.user()?.firstName ||
+          'Account'
+        }}
       </a>
 
-      <button type="button" (click)="logout()">
+      <button
+        type="button"
+        (click)="logout()"
+      >
         Sign out
       </button>
     } @else {
-      <a routerLink="/login">Sign in</a>
+      <a routerLink="/register">
+        Create account
+      </a>
+
+      <a routerLink="/login">
+        Sign in
+      </a>
     }
   </nav>
 </header>

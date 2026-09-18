@@ -23,10 +23,11 @@ export const authInterceptor: HttpInterceptorFn = (
   const token = authSession.getAccessToken();
 
   const isOurApi = request.url.startsWith(API_ROOT);
-  const isLoginRequest =
+  const isAnonymousAuthRequest  =
     request.url === `${API_ROOT}auth/login`;
+    request.url === `${API_ROOT}auth/register`;
 
-  if (!token || !isOurApi || isLoginRequest) {
+  if (!token || !isOurApi || isAnonymousAuthRequest) {
     return next(request);
   }
 
