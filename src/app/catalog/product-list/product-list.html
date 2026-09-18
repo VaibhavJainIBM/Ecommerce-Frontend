@@ -53,19 +53,25 @@
                 </p>
               </div>
 
-              <div class="detail">
-                <span class="label">Seller</span>
-                <span>{{ listing.sellerDisplayName }}</span>
-              </div>
+              <div class="card-details">
+                <div class="detail">
+                  <span class="label">Seller</span>
+                  <span>{{ listing.sellerDisplayName }}</span>
+                </div>
 
-              <div class="detail">
-                <span class="label">Availability</span>
+                <div class="detail">
+                  <span class="label">Availability</span>
 
-                @if (listing.availableQuantity > 0) {
-                  <span>{{ listing.availableQuantity }} in stock</span>
-                } @else {
-                  <span class="out-of-stock">Out of stock</span>
-                }
+                  @if (listing.availableQuantity > 0) {
+                    <span>
+                      {{ listing.availableQuantity }} in stock
+                    </span>
+                  } @else {
+                    <span class="out-of-stock">
+                      Out of stock
+                    </span>
+                  }
+                </div>
               </div>
 
               <div class="purchase">

@@ -30,24 +30,24 @@ export const routes: Routes = [
   {
     path: '',
     component: ProductList,
-    title: 'Storefront | CartCraft',
+    title: 'Storefront | IBM-Mart',
   },
   {
     path: 'login',
     component: Login,
-    title: 'Sign in | CartCraft',
+    title: 'Sign in | IBM-Mart',
   },
   {
     path: 'account',
     component: Account,
-    title: 'Account | CartCraft',
+    title: 'Account | IBM-Mart',
     canActivate: [authGuard],
   },
 
   {
     path: 'admin',
     component: AdminDashboard,
-    title: 'Admin | CartCraft',
+    title: 'Admin | IBM-Mart',
     canActivate: [authGuard, roleGuard],
     data: {
       roles: [Roles.Admin],
@@ -61,35 +61,35 @@ export const routes: Routes = [
       {
         path: 'overview',
         component: AdminOverview,
-        title: 'Admin overview | CartCraft',
+        title: 'Admin overview | IBM-Mart',
       },
       {
         path: 'catalog',
         component: AdminCatalog,
-        title: 'Admin catalog | CartCraft',
+        title: 'Admin catalog | IBM-Mart',
       },
       {
         path: 'sellers',
         component: AdminSellerReviews,
-        title: 'Seller reviews | CartCraft',
+        title: 'Seller reviews | IBM-Mart',
       },
       {
         path: 'listings',
         component: AdminListingReviews,
-        title: 'Listing reviews | CartCraft',
+        title: 'Listing reviews | IBM-Mart',
       },
     ],
   },
   {
     path: 'seller',
     component: SellerDashboard,
-    title: 'Seller | CartCraft',
+    title: 'Seller | IBM-Mart',
     canActivate: [authGuard, sellerAreaGuard],
   },
   {
     path: 'forbidden',
     component: Forbidden,
-    title: 'Access denied | CartCraft',
+    title: 'Access denied | IBM-Mart',
     canActivate: [authGuard],
   },
 
@@ -111,12 +111,12 @@ export const routes: Routes = [
       {
         path: 'overview',
         component: SellerOverview,
-        title: 'Seller overview | CartCraft',
+        title: 'Seller overview | IBM-Mart',
       },
       {
         path: 'listings',
         component: SellerListings,
-        title: 'Listings | CartCraft',
+        title: 'Listings | IBM-Mart',
         canActivate: [sellerRoleGuard],
         data: {
           sellerRoles: ['Owner', 'Manager'],
@@ -125,7 +125,7 @@ export const routes: Routes = [
       {
         path: 'warehouses',
         component: SellerWarehouses,
-        title: 'Warehouses | CartCraft',
+        title: 'Warehouses | IBM-Mart',
         canActivate: [sellerRoleGuard],
         data: {
           sellerRoles: [
@@ -138,7 +138,7 @@ export const routes: Routes = [
       {
         path: 'inventory',
         component: SellerInventory,
-        title: 'Inventory | CartCraft',
+        title: 'Inventory | IBM-Mart',
         canActivate: [sellerRoleGuard],
         data: {
           sellerRoles: [
@@ -151,7 +151,7 @@ export const routes: Routes = [
       {
         path: 'orders',
         component: SellerOrders,
-        title: 'Orders | CartCraft',
+        title: 'Orders | IBM-Mart',
         canActivate: [sellerRoleGuard],
         data: {
           sellerRoles: ['Owner', 'Manager'],
@@ -160,7 +160,7 @@ export const routes: Routes = [
       {
         path: 'team',
         component: SellerTeam,
-        title: 'Seller team | CartCraft',
+        title: 'Seller team | IBM-Mart',
         canActivate: [sellerRoleGuard],
         data: {
           sellerRoles: ['Owner'],
