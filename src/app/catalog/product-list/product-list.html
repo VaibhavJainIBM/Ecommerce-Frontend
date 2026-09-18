@@ -16,6 +16,18 @@
       }
     </header>
 
+    @if (cartMessage()) {
+      <p class="cart-feedback success-feedback" role="status">
+        {{ cartMessage() }}
+      </p>
+    }
+
+    @if (cartErrorMessage()) {
+      <p class="cart-feedback error-feedback" role="alert">
+        {{ cartErrorMessage() }}
+      </p>
+    }
+
     @if (isLoading()) {
       <div class="state" role="status">
         Loading storefront…
@@ -88,9 +100,17 @@
                 <button
                   class="add-button"
                   type="button"
-                  [disabled]="listing.availableQuantity === 0"
+                  [disabled]="
+                    listing.availableQuantity === 0 ||
+                    busyListingId() !== null
+                  "
+                  (click)="addToCart(listing)"
                 >
-                  Add
+                  {{
+                    busyListingId() === listing.listingId
+                      ? 'Adding…'
+                      : 'Add'
+                  }}
                 </button>
               </div>
             </article>

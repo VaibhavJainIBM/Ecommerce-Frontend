@@ -13,6 +13,7 @@ import { Forbidden } from './auth/forbidden/forbidden';
 import { Login } from './auth/login/login';
 import { Register } from './auth/register/register';
 import { roleGuard } from './auth/role-guard';
+import { CartPage } from './cart/cart-page/cart-page';
 import { ProductList } from './catalog/product-list/product-list';
 import { sellerAccessGuard } from './seller/seller-access-guard';
 import { sellerAreaGuard } from './seller/seller-area-guard';
@@ -46,6 +47,12 @@ export const routes: Routes = [
     path: 'account',
     component: Account,
     title: 'Account',
+    canActivate: [authGuard],
+  },
+  {
+    path: 'cart',
+    component: CartPage,
+    title: 'Cart',
     canActivate: [authGuard],
   },
   {

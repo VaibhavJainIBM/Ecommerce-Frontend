@@ -1,0 +1,225 @@
+<div class="page">
+  <app-navbar>
+  </app-navbar>
+
+  <main class="cart-page">
+    <header class="page-header">
+      <div>
+        <p class="eyebrow">Shopping</p>
+        <h1>Your cart</h1>
+      </div>
+
+      @if (!isLoading() && cart(); as currentCart) {
+        <p class="item-count">
+          {{ itemCount() }}
+          {{ itemCount() === 1 ? 'item' : 'items' }}
+        </p>
+      }
+    </header>
+
+    @if (successMessage()) {
+      <p class="message success" role="status">
+        {{ successMessage() }}
+      </p>
+    }
+
+    @if (errorMessage()) {
+      <div class="message error" role="alert">
+        <p>{{ errorMessage() }}</p>
+
+        <button type="button" (click)="loadCart()">
+          Refresh cart
+        </button>
+      </div>
+    }
+
+    @if (isLoading()) {
+      <p class="state" role="status">
+        Loading your cart…
+      </p>
+    } @else if (cart(); as currentCart) {
+      @if (currentCart.items.length === 0) {
+        <section class="state empty-state">
+          <h2>Your cart is empty</h2>
+          <p>Browse the storefront to find something to add.</p>
+
+          <a class="primary-link" routerLink="/">
+            Continue shopping
+          </a>
+        </section>
+      } @else {
+        <div class="cart-layout">
+          <ul class="cart-items">
+            @for (
+              item of currentCart.items;
+              track item.listingId
+            ) {
+              <li>
+                <article class="cart-item">
+                  <div class="item-description">
+                    <p class="seller">
+                      {{ item.sellerDisplayName }}
+                    </p>
+
+                    <h2>{{ item.productTitle }}</h2>
+
+                    <p class="variant">
+                      {{ item.variantName }}
+                    </p>
+
+                    <p class="unit-price">
+                      {{
+                        item.unitPriceAmount
+                          | currency
+                            : item.currencyCode
+                            : 'symbol'
+                            : '1.0-2'
+                      }}
+                      each
+                    </p>
+
+                    @if (!item.isAvailable) {
+                      <p class="availability-warning">
+                        @if (item.availableQuantity <= 0) {
+                          This listing is currently unavailable.
+                        } @else {
+                          Only {{ item.availableQuantity }} are
+                          currently available. Reduce the quantity
+                          before checkout.
+                        }
+                      </p>
+                    }
+                  </div>
+
+                  <div class="quantity-section">
+                    <span class="control-label">Quantity</span>
+
+                    <div
+                      class="quantity-control"
+                      aria-label="Item quantity"
+                    >
+                      <button
+                        type="button"
+                        aria-label="Decrease quantity"
+                        [disabled]="
+                          isClearing() ||
+                          busyListingId() !== null ||
+                          item.quantity <= 1 ||
+                          maximumQuantity(item) < 1
+                        "
+                        (click)="
+                          updateQuantity(
+                            item,
+                            item.quantity - 1
+                          )
+                        "
+                      >
+                        −
+                      </button>
+
+                      <span aria-live="polite">
+                        {{ item.quantity }}
+                      </span>
+
+                      <button
+                        type="button"
+                        aria-label="Increase quantity"
+                        [disabled]="
+                          isClearing() ||
+                          busyListingId() !== null ||
+                          item.quantity >= maximumQuantity(item)
+                        "
+                        (click)="
+                          updateQuantity(
+                            item,
+                            item.quantity + 1
+                          )
+                        "
+                      >
+                        +
+                      </button>
+                    </div>
+
+                    <button
+                      class="remove-button"
+                      type="button"
+                      [disabled]="
+                        isClearing() ||
+                        busyListingId() !== null
+                      "
+                      (click)="removeItem(item)"
+                    >
+                      {{
+                        busyListingId() === item.listingId
+                          ? 'Updating…'
+                          : 'Remove'
+                      }}
+                    </button>
+                  </div>
+
+                  <div class="line-total">
+                    <span class="control-label">Subtotal</span>
+
+                    <strong>
+                      {{
+                        item.lineTotal
+                          | currency
+                            : item.currencyCode
+                            : 'symbol'
+                            : '1.0-2'
+                      }}
+                    </strong>
+                  </div>
+                </article>
+              </li>
+            }
+          </ul>
+
+          <aside class="summary" aria-labelledby="summary-title">
+            <h2 id="summary-title">Summary</h2>
+
+            <div class="summary-row">
+              <span>Total</span>
+
+              <strong>
+                @if (currentCart.currencyCode) {
+                  {{
+                    currentCart.totalAmount
+                      | currency
+                        : currentCart.currencyCode
+                        : 'symbol'
+                        : '1.0-2'
+                  }}
+                } @else {
+                  Unavailable
+                }
+              </strong>
+            </div>
+
+            @if (!currentCart.isCheckoutReady) {
+              <p class="checkout-warning">
+                Resolve unavailable items before checkout.
+              </p>
+            }
+
+            <a class="secondary-link" routerLink="/">
+              Continue shopping
+            </a>
+
+            <button
+              class="clear-button"
+              type="button"
+              [disabled]="
+                isClearing() ||
+                busyListingId() !== null
+              "
+              (click)="clearCart()"
+            >
+              {{ isClearing() ? 'Clearing…' : 'Clear cart' }}
+            </button>
+          </aside>
+        </div>
+      }
+    }
+  </main>
+</div>

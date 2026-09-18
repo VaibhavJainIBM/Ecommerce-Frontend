@@ -1,6 +1,6 @@
 <header class="navbar">
   <a class="brand" routerLink="/">
-    Ecommerce
+    IBM-Mart
   </a>
 
   <nav aria-label="Primary navigation">
@@ -9,6 +9,10 @@
     </a>
 
     @if (authSession.isAuthenticated()) {
+      <a routerLink="/cart">
+        Cart
+      </a>
+
       @if (authSession.hasRole(roles.Admin)) {
         <a routerLink="/admin">
           Admin
