@@ -1,0 +1,350 @@
+<app-navbar></app-navbar>
+
+<main class="order-page">
+
+  <div class="back-row">
+    <a routerLink="/orders">
+      ← Back to orders
+    </a>
+  </div>
+
+  @if (successMessage()) {
+    <p
+      class="message success"
+      role="status"
+    >
+      {{ successMessage() }}
+    </p>
+  }
+
+  @if (errorMessage()) {
+    <p
+      class="message error"
+      role="alert"
+    >
+      {{ errorMessage() }}
+    </p>
+  }
+
+  @if (isLoading()) {
+    <div class="state">
+      Loading order…
+    </div>
+  } @else if (order(); as currentOrder) {
+
+    <header class="order-header">
+      <div>
+        <p class="eyebrow">
+          Order
+        </p>
+
+        <h1>
+          {{ currentOrder.orderNumber }}
+        </h1>
+
+        <p class="placed">
+          Placed
+          {{
+            currentOrder.createdAtUtc
+              | date: 'medium'
+          }}
+        </p>
+      </div>
+
+      <span
+        class="status"
+        [attr.data-status]="
+          currentOrder.status
+        "
+      >
+        {{ currentOrder.status }}
+      </span>
+    </header>
+
+    @if (
+      currentOrder.status ===
+      'PendingPayment'
+    ) {
+      <section class="pending-notice">
+        <div>
+          <strong>
+            Payment pending
+          </strong>
+
+          <p>
+            Inventory is currently reserved for this order.
+          </p>
+        </div>
+
+        <div>
+          <span>
+            Reservation expires
+          </span>
+
+          <strong>
+            {{
+              currentOrder.expiresAtUtc
+                | date: 'medium'
+            }}
+          </strong>
+        </div>
+      </section>
+    }
+
+    <div class="order-layout">
+
+      <div class="main-column">
+
+        <section class="section">
+          <div class="section-header">
+            <h2>
+              Items
+            </h2>
+
+            <span>
+              {{ totalQuantity(currentOrder) }}
+              {{
+                totalQuantity(currentOrder) === 1
+                  ? 'item'
+                  : 'items'
+              }}
+            </span>
+          </div>
+
+          <div class="item-list">
+            @for (
+              item of currentOrder.items;
+              track item.orderItemId
+            ) {
+              <article class="order-item">
+
+                <div class="item-main">
+                  <p class="seller-name">
+                    {{ item.sellerDisplayName }}
+                  </p>
+
+                  <h3>
+                    {{ item.productTitle }}
+                  </h3>
+
+                  <p class="variant">
+                    {{ item.variantName }}
+                  </p>
+
+                  <p class="sku">
+                    SKU:
+                    {{ item.sellerSku }}
+                  </p>
+                </div>
+
+                <div class="item-quantity">
+                  <span>
+                    Qty
+                  </span>
+
+                  <strong>
+                    {{ item.quantity }}
+                  </strong>
+                </div>
+
+                <div class="item-price">
+                  <span>
+                    {{
+                      item.unitPriceAmount
+                        | currency:
+                          item.currencyCode:
+                          'symbol':
+                          '1.0-2'
+                    }}
+                    each
+                  </span>
+
+                  <strong>
+                    {{
+                      item.lineTotal
+                        | currency:
+                          item.currencyCode:
+                          'symbol':
+                          '1.0-2'
+                    }}
+                  </strong>
+                </div>
+
+              </article>
+            }
+          </div>
+        </section>
+
+        <section class="section">
+          <h2>
+            Delivery details
+          </h2>
+
+          <div class="delivery-grid">
+
+            <div>
+              <span class="label">
+                Recipient
+              </span>
+
+              <strong>
+                {{ currentOrder.recipientName }}
+              </strong>
+            </div>
+
+            <div>
+              <span class="label">
+                Phone
+              </span>
+
+              <strong>
+                {{ currentOrder.phone }}
+              </strong>
+            </div>
+
+          </div>
+
+          <address>
+            {{ currentOrder.shippingAddress.line1 }}
+
+            @if (
+              currentOrder.shippingAddress.line2
+            ) {
+              <br />
+
+              {{
+                currentOrder
+                  .shippingAddress.line2
+              }}
+            }
+
+            <br />
+
+            {{
+              currentOrder
+                .shippingAddress.city
+            }},
+            {{
+              currentOrder
+                .shippingAddress
+                .stateOrProvince
+            }}
+
+            <br />
+
+            {{
+              currentOrder
+                .shippingAddress.postalCode
+            }}
+
+            <br />
+
+            {{
+              currentOrder
+                .shippingAddress.countryCode
+            }}
+          </address>
+        </section>
+
+      </div>
+
+      <aside class="summary">
+        <h2>
+          Order summary
+        </h2>
+
+        <div class="summary-row">
+          <span>
+            Items
+          </span>
+
+          <span>
+            {{ totalQuantity(currentOrder) }}
+          </span>
+        </div>
+
+        <div class="summary-row">
+          <span>
+            Status
+          </span>
+
+          <span>
+            {{ currentOrder.status }}
+          </span>
+        </div>
+
+        <div class="summary-total">
+          <span>
+            Total
+          </span>
+
+          <strong>
+            {{
+              currentOrder.totalAmount
+                | currency:
+                  currentOrder.currencyCode:
+                  'symbol':
+                  '1.0-2'
+            }}
+          </strong>
+        </div>
+
+        @if (canCancel()) {
+          <button
+            class="cancel-button"
+            type="button"
+            [disabled]="isCancelling()"
+            (click)="cancelOrder()"
+          >
+            {{
+              isCancelling()
+                ? 'Cancelling…'
+                : 'Cancel order'
+            }}
+          </button>
+        }
+
+        @if (
+          currentOrder.status ===
+          'Cancelled'
+        ) {
+          <p class="final-status">
+            This order has been cancelled.
+          </p>
+        }
+
+        @if (
+          currentOrder.status ===
+          'Expired'
+        ) {
+          <p class="final-status">
+            This order has expired.
+          </p>
+        }
+
+        <a
+          class="shop-link"
+          routerLink="/"
+        >
+          Continue shopping
+        </a>
+      </aside>
+
+    </div>
+
+    <section class="technical-details">
+      <div>
+        <span>
+          Order ID
+        </span>
+
+        <code>
+          {{ currentOrder.orderId }}
+        </code>
+      </div>
+
+      <div>
+      </div>
+    </section>
+  }
+</main>

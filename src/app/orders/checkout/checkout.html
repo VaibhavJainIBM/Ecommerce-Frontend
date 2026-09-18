@@ -1,0 +1,184 @@
+<app-navbar></app-navbar>
+
+<main class="checkout-page">
+  <header>
+    <p class="eyebrow">
+      Checkout
+    </p>
+
+    <h1>
+      Shipping details
+    </h1>
+  </header>
+
+  @if (errorMessage()) {
+    <p
+      class="message error"
+      role="alert"
+    >
+      {{ errorMessage() }}
+    </p>
+  }
+
+  @if (isLoading()) {
+    <p>
+      Loading checkout…
+    </p>
+  } @else if (cart(); as currentCart) {
+
+    @if (currentCart.items.length === 0) {
+      <section>
+        <h2>
+          Your cart is empty
+        </h2>
+
+        <a routerLink="/">
+          Continue shopping
+        </a>
+      </section>
+    } @else {
+
+      <div class="checkout-layout">
+        <form
+          [formGroup]="checkoutForm"
+          (ngSubmit)="checkout()"
+        >
+          <label>
+            <span>Recipient name</span>
+
+            <input
+              type="text"
+              formControlName="recipientName"
+            />
+          </label>
+
+          <label>
+            <span>Phone</span>
+
+            <input
+              type="tel"
+              formControlName="phone"
+            />
+          </label>
+
+          <label>
+            <span>Address line 1</span>
+
+            <input
+              type="text"
+              formControlName="line1"
+            />
+          </label>
+
+          <label>
+            <span>Address line 2</span>
+
+            <input
+              type="text"
+              formControlName="line2"
+            />
+          </label>
+
+          <label>
+            <span>City</span>
+
+            <input
+              type="text"
+              formControlName="city"
+            />
+          </label>
+
+          <label>
+            <span>State / Province</span>
+
+            <input
+              type="text"
+              formControlName="stateOrProvince"
+            />
+          </label>
+
+          <label>
+            <span>Postal code</span>
+
+            <input
+              type="text"
+              formControlName="postalCode"
+            />
+          </label>
+
+          <label>
+            <span>Country code</span>
+
+            <input
+              type="text"
+              formControlName="countryCode"
+              maxlength="2"
+            />
+          </label>
+
+          <button
+            type="submit"
+            [disabled]="
+              isSubmitting() ||
+              !currentCart.isCheckoutReady ||
+              checkoutForm.invalid
+            "
+          >
+            {{
+              isSubmitting()
+                ? 'Placing order…'
+                : 'Place order'
+            }}
+          </button>
+        </form>
+
+        <aside>
+          <h2>
+            Order summary
+          </h2>
+
+          @for (
+            item of currentCart.items;
+            track item.listingId
+          ) {
+            <div>
+              <strong>
+                {{ item.productTitle }}
+              </strong>
+
+              <span>
+                {{ item.quantity }} ×
+
+                {{
+                  item.unitPriceAmount
+                    | currency:
+                      item.currencyCode
+                }}
+              </span>
+            </div>
+          }
+
+          <hr />
+
+          @if (currentCart.currencyCode; as currencyCode) {
+          <strong>
+            Total:
+
+            {{
+              currentCart.totalAmount
+                | currency:
+                  currencyCode
+                  : 'symbol'
+                  : '1.0-2'
+            }}
+          </strong>
+        } @else {
+          <strong>
+            Total unavailable
+          </strong>
+        }
+        </aside>
+      </div>
+    }
+  }
+</main>

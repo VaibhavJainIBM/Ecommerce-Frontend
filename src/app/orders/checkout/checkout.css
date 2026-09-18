@@ -1,0 +1,300 @@
+:host {
+  display: block;
+  color: #171717;
+  background: #ffffff;
+}
+
+.checkout-page {
+  width: min(1180px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 3rem 0 5rem;
+}
+
+.checkout-page > header {
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #deded8;
+}
+
+.checkout-page > header h1 {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+}
+
+.eyebrow {
+  margin: 0 0 0.45rem;
+  color: #73736d;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.message {
+  padding: 0.9rem 1rem;
+  margin: 1.25rem 0;
+  border-left: 2px solid;
+  line-height: 1.5;
+}
+
+.message.error {
+  color: #8f1c1c;
+  background: #fffafa;
+  border-color: #8f1c1c;
+}
+
+.checkout-layout {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.5fr)
+    minmax(280px, 0.75fr);
+  gap: 3rem;
+  align-items: start;
+  margin-top: 2rem;
+}
+
+form {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 1.1rem;
+}
+
+label {
+  display: block;
+}
+
+label:nth-of-type(3),
+label:nth-of-type(4) {
+  grid-column: 1 / -1;
+}
+
+label > span {
+  display: block;
+  margin-bottom: 0.4rem;
+  color: #64645f;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+input {
+  width: 100%;
+  min-height: 2.9rem;
+  box-sizing: border-box;
+
+  padding: 0.7rem 0.8rem;
+
+  color: #171717;
+  background: #ffffff;
+
+  border: 1px solid #bdbdb6;
+  border-radius: 0;
+
+  font: inherit;
+
+  transition:
+    border-color 120ms ease,
+    background 120ms ease;
+}
+
+input:hover {
+  border-color: #8f8f88;
+}
+
+input:focus {
+  border-color: #171717;
+  outline: 1px solid #171717;
+}
+
+input.ng-invalid.ng-touched {
+  border-color: #a51d1d;
+}
+
+form > button {
+  grid-column: 1 / -1;
+
+  min-height: 3rem;
+  margin-top: 0.5rem;
+  padding: 0.75rem 1rem;
+
+  color: #ffffff;
+  background: #171717;
+
+  border: 1px solid #171717;
+  border-radius: 0;
+
+  font: inherit;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 120ms ease,
+    color 120ms ease;
+}
+
+form > button:hover:not(:disabled) {
+  color: #171717;
+  background: #ffffff;
+}
+
+form > button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+aside {
+  position: sticky;
+  top: 1.5rem;
+
+  padding: 1.25rem;
+
+  background: #fafaf7;
+  border: 1px solid #deded8;
+}
+
+aside h2 {
+  margin: 0 0 1.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+aside > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+
+  padding: 0.85rem 0;
+
+  border-bottom: 1px solid #e4e4df;
+}
+
+aside > div:first-of-type {
+  padding-top: 0;
+}
+
+aside > div strong {
+  min-width: 0;
+
+  font-size: 0.85rem;
+  font-weight: 500;
+
+  overflow-wrap: anywhere;
+}
+
+aside > div span {
+  flex-shrink: 0;
+
+  color: #65655f;
+  font-size: 0.8rem;
+  text-align: right;
+}
+
+aside hr {
+  margin: 1.2rem 0;
+  border: 0;
+  border-top: 1px solid #bcbcb5;
+}
+
+aside > strong {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.checkout-page > section {
+  margin-top: 2rem;
+  padding: 2rem;
+
+  text-align: center;
+
+  background: #fafaf7;
+  border: 1px solid #deded8;
+}
+
+.checkout-page > section h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.3rem;
+  font-weight: 500;
+}
+
+.checkout-page > section a {
+  display: inline-block;
+
+  margin-top: 0.75rem;
+  padding: 0.7rem 1rem;
+
+  color: #ffffff;
+  background: #171717;
+
+  border: 1px solid #171717;
+
+  text-decoration: none;
+}
+
+.checkout-page > section a:hover {
+  color: #171717;
+  background: #ffffff;
+}
+
+.checkout-page > p:not(.message) {
+  padding: 2rem 0;
+  color: #70706a;
+}
+
+button:focus-visible,
+input:focus-visible,
+a:focus-visible {
+  outline: 2px solid #171717;
+  outline-offset: 2px;
+}
+
+@media (max-width: 900px) {
+  .checkout-layout {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  aside {
+    position: static;
+  }
+}
+
+@media (max-width: 600px) {
+  .checkout-page {
+    width: min(100% - 1.25rem, 1180px);
+    padding-top: 2rem;
+  }
+
+  form {
+    grid-template-columns: 1fr;
+  }
+
+  label:nth-of-type(3),
+  label:nth-of-type(4) {
+    grid-column: auto;
+  }
+
+  aside {
+    padding: 1rem;
+  }
+
+  aside > div {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  aside > div span {
+    text-align: left;
+  }
+
+  form > button {
+    grid-column: auto;
+  }
+}

@@ -26,6 +26,10 @@ import { sellerRoleGuard } from './seller/seller-role-guard';
 import { SellerTeam } from './seller/seller-team/seller-team';
 import { SellerWarehouses } from './seller/seller-warehouses/seller-warehouses';
 import { SellerWorkspace } from './seller/seller-workspace/seller-workspace';
+import { Checkout} from './orders/checkout/checkout';
+import { OrderList } from './orders/order-list/order-list';
+import { OrderDetails } from './orders/order-detail/order-details';
+
 
 export const routes: Routes = [
   {
@@ -185,6 +189,25 @@ export const routes: Routes = [
         },
       },
     ],
+  },
+
+  {
+    path: 'checkout',
+    component: Checkout,
+    title: 'Checkout',
+    canActivate: [authGuard],
+  },
+  {
+    path: 'orders',
+    component: OrderList,
+    title: 'My orders',
+    canActivate: [authGuard],
+  },
+  {
+    path: 'orders/:orderId',
+    component: OrderDetails,
+    title: 'Order details',
+    canActivate: [authGuard],
   },
   {
     path: '**',

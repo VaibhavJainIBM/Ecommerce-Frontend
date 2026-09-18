@@ -1,0 +1,200 @@
+<app-navbar></app-navbar>
+
+<main class="orders-page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">
+        Account
+      </p>
+
+      <h1>
+        My orders
+      </h1>
+    </div>
+
+    @if (!isLoading()) {
+      <p class="order-count">
+        {{ totalCount() }}
+        {{
+          totalCount() === 1
+            ? 'order'
+            : 'orders'
+        }}
+      </p>
+    }
+  </header>
+
+  @if (errorMessage()) {
+    <div
+      class="message error"
+      role="alert"
+    >
+      <p>
+        {{ errorMessage() }}
+      </p>
+
+      <button
+        type="button"
+        (click)="loadOrders(page())"
+      >
+        Try again
+      </button>
+    </div>
+  }
+
+  @if (isLoading()) {
+    <div class="state">
+      Loading your orders…
+    </div>
+  } @else if (
+    orders().length === 0
+  ) {
+    <section class="state empty-state">
+      <h2>
+        No orders yet
+      </h2>
+
+      <p>
+        Your completed checkouts will appear here.
+      </p>
+
+      <a
+        class="primary-link"
+        routerLink="/"
+      >
+        Start shopping
+      </a>
+    </section>
+  } @else {
+    <div class="order-list">
+      @for (
+        order of orders();
+        track order.orderId
+      ) {
+        <article class="order-card">
+          <div class="order-main">
+            <div class="order-heading">
+              <div>
+                <p class="order-label">
+                  Order
+                </p>
+
+                <h2>
+                  {{ order.orderNumber }}
+                </h2>
+              </div>
+
+              <span
+                class="status"
+                [attr.data-status]="order.status"
+              >
+                {{ order.status }}
+              </span>
+            </div>
+
+            <div class="order-info">
+              <div>
+                <span class="label">
+                  Placed
+                </span>
+
+                <strong>
+                  {{
+                    order.createdAtUtc
+                      | date: 'medium'
+                  }}
+                </strong>
+              </div>
+
+              <div>
+                <span class="label">
+                  Items
+                </span>
+
+                <strong>
+                  {{ itemCount(order) }}
+                </strong>
+              </div>
+
+              <div>
+                <span class="label">
+                  Recipient
+                </span>
+
+                <strong>
+                  {{ order.recipientName }}
+                </strong>
+              </div>
+
+              <div>
+                <span class="label">
+                  Total
+                </span>
+
+                <strong>
+                  {{
+                    order.totalAmount
+                      | currency:
+                        order.currencyCode:
+                        'symbol':
+                        '1.0-2'
+                  }}
+                </strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="order-action">
+            <a
+              [routerLink]="[
+                '/orders',
+                order.orderId
+              ]"
+            >
+              View details
+            </a>
+          </div>
+        </article>
+      }
+    </div>
+
+    @if (totalPages() > 1) {
+      <nav
+        class="pagination"
+        aria-label="Order pages"
+      >
+        <button
+          type="button"
+          [disabled]="page() <= 1"
+          (click)="
+            loadOrders(
+              page() - 1
+            )
+          "
+        >
+          ← Previous
+        </button>
+
+        <span>
+          {{ page() }}
+          /
+          {{ totalPages() }}
+        </span>
+
+        <button
+          type="button"
+          [disabled]="
+            page() >= totalPages()
+          "
+          (click)="
+            loadOrders(
+              page() + 1
+            )
+          "
+        >
+          Next →
+        </button>
+      </nav>
+    }
+  }
+</main>

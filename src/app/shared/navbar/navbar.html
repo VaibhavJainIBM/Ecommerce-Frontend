@@ -13,6 +13,10 @@
         Cart
       </a>
 
+      <a routerLink="/orders">
+        Orders
+      </a>
+
       @if (authSession.hasRole(roles.Admin)) {
         <a routerLink="/admin">
           Admin

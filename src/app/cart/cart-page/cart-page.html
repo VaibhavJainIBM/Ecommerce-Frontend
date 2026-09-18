@@ -177,7 +177,6 @@
 
           <aside class="summary" aria-labelledby="summary-title">
             <h2 id="summary-title">Summary</h2>
-
             <div class="summary-row">
               <span>Total</span>
 
@@ -195,6 +194,7 @@
                 }
               </strong>
             </div>
+            
 
             @if (!currentCart.isCheckoutReady) {
               <p class="checkout-warning">
@@ -218,6 +218,16 @@
               {{ isClearing() ? 'Clearing…' : 'Clear cart' }}
             </button>
           </aside>
+
+          <a
+            class="primary-link"
+            routerLink="/checkout"
+            [class.disabled]="
+              !currentCart.isCheckoutReady
+            "
+          >
+            Proceed to checkout
+          </a>
         </div>
       }
     }
