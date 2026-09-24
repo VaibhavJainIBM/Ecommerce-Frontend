@@ -25,6 +25,9 @@ export class AdminApi {
   private readonly adminUrl =
     'http://localhost:5167/api/admin';
 
+  private readonly productAdminUrl =
+  'http://localhost:5202/api/admin/catalog/products';
+
   getProfile(): Observable<AdminProfile> {
     return this.http.get<AdminProfile>(
       `${this.adminUrl}/me`,
@@ -75,7 +78,7 @@ export class AdminApi {
     query: AdminQuery = {},
   ): Observable<PagedAdminCatalogProducts> {
     return this.http.get<PagedAdminCatalogProducts>(
-      `${this.adminUrl}/catalog/products`,
+      this.productAdminUrl,
       { params: this.queryParams(query) },
     );
   }
@@ -84,7 +87,7 @@ export class AdminApi {
     request: CreateCatalogProductRequest,
   ): Observable<CreatedCatalogProduct> {
     return this.http.post<CreatedCatalogProduct>(
-      `${this.adminUrl}/catalog/products`,
+      this.productAdminUrl,
       request,
     );
   }
@@ -93,7 +96,7 @@ export class AdminApi {
     productId: string,
   ): Observable<CreatedCatalogProduct> {
     return this.http.post<CreatedCatalogProduct>(
-      `${this.adminUrl}/catalog/products/${productId}/activate`,
+      `${this.productAdminUrl}/${productId}/activate`,
       null,
     );
   }
@@ -107,7 +110,7 @@ export class AdminApi {
     form.append('activate', String(activate));
 
     return this.http.post<CatalogImportResult>(
-      `${this.adminUrl}/catalog/products/import-csv`,
+      `${this.productAdminUrl}/import-csv`,
       form,
     );
   }

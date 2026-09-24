@@ -8,26 +8,38 @@ import { catchError, throwError } from 'rxjs';
 import { AuthSession } from './auth-session';
 import { SellerContext } from '../seller/seller-context';
 
+const API_ROOTS = [
+  'http://localhost:5167/api/',
+  'http://localhost:5202/api/',
+];
 
-
-const API_ROOT = 'http://localhost:5167/api/';
+const ANONYMOUS_AUTH_URLS = [
+  'http://localhost:5167/api/auth/login',
+  'http://localhost:5167/api/auth/register',
+];
 
 export const authInterceptor: HttpInterceptorFn = (
   request,
   next,
 ) => {
-
   const sellerContext = inject(SellerContext);
   const authSession = inject(AuthSession);
   const router = inject(Router);
+
   const token = authSession.getAccessToken();
 
-  const isOurApi = request.url.startsWith(API_ROOT);
-  const isAnonymousAuthRequest  =
-    request.url === `${API_ROOT}auth/login`;
-    request.url === `${API_ROOT}auth/register`;
+  const isOurApi = API_ROOTS.some(
+    root => request.url.startsWith(root),
+  );
 
-  if (!token || !isOurApi || isAnonymousAuthRequest) {
+  const isAnonymousAuthRequest =
+    ANONYMOUS_AUTH_URLS.includes(request.url);
+
+  if (
+    !token ||
+    !isOurApi ||
+    isAnonymousAuthRequest
+  ) {
     return next(request);
   }
 
@@ -44,6 +56,7 @@ export const authInterceptor: HttpInterceptorFn = (
         authSession.isAuthenticated()
       ) {
         const returnUrl = router.url;
+
         sellerContext.clear();
         authSession.logout();
 

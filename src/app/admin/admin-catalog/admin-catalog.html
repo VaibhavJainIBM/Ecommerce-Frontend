@@ -73,7 +73,10 @@
       </button>
     </div>
 
-    <div formArrayName="variants" class="variantList">
+    <div
+      formArrayName="variants"
+      class="variantList"
+    >
       @for (
         variant of variants.controls;
         track $index
@@ -128,7 +131,11 @@
       type="submit"
       [disabled]="isCreating()"
     >
-      {{ isCreating() ? 'Creating' : 'Create product' }}
+      {{
+        isCreating()
+          ? 'Creating'
+          : 'Create product'
+      }}
     </button>
   </form>
 </section>
@@ -145,9 +152,10 @@
     </button>
   </div>
 
-  <form class="importForm" (ngSubmit)="importCatalog()">
+  <div class="importForm">
     <label>
       CSV file
+
       <input
         type="file"
         accept=".csv,text/csv"
@@ -161,16 +169,22 @@
         [checked]="activateImport()"
         (change)="changeImportActivation($event)"
       />
+
       Activate imported products
     </label>
 
     <button
-      type="submit"
+      type="button"
       [disabled]="isImporting() || !selectedFile()"
+      (click)="importCatalog()"
     >
-      {{ isImporting() ? 'Importing' : 'Import' }}
+      {{
+        isImporting()
+          ? 'Importing'
+          : 'Import'
+      }}
     </button>
-  </form>
+  </div>
 
   @if (importResult(); as result) {
     <p>
@@ -184,37 +198,48 @@
 <section>
   <h3>Products</h3>
 
-  <form
-    class="filterForm"
-    (ngSubmit)="loadProducts(1)"
-  >
+  <div class="filterForm">
     <label>
       Search
+
       <input
         type="search"
         [formControl]="search"
         maxlength="100"
+        (keydown.enter)="loadProducts(1)"
       />
     </label>
 
     <label>
       Status
+
       <select
         [value]="status()"
         (change)="changeStatus($event)"
       >
-        <option value="">All</option>
+        <option value="">
+          All
+        </option>
 
-        @for (item of statuses; track item) {
-          <option [value]="item">{{ item }}</option>
+        @for (
+          item of statuses;
+          track item
+        ) {
+          <option [value]="item">
+            {{ item }}
+          </option>
         }
       </select>
     </label>
 
-    <button type="submit" [disabled]="isLoading()">
+    <button
+      type="button"
+      [disabled]="isLoading()"
+      (click)="loadProducts(1)"
+    >
       Search
     </button>
-  </form>
+  </div>
 
   @if (isLoading()) {
     <p>Loading</p>
@@ -233,21 +258,28 @@
                 {{ product.brandName }}
                 {{ product.title }}
               </h4>
+
               <small>
                 {{ product.status }}
                 ·
-                {{ product.createdAtUtc | date: 'mediumDate' }}
+                {{
+                  product.createdAtUtc
+                    | date: 'mediumDate'
+                }}
               </small>
             </div>
 
             @if (product.status === 'Draft') {
               <button
                 type="button"
-                [disabled]="busyProductId() !== null"
+                [disabled]="
+                  busyProductId() !== null
+                "
                 (click)="activate(product)"
               >
                 {{
-                  busyProductId() === product.productId
+                  busyProductId() ===
+                  product.productId
                     ? 'Activating'
                     : 'Activate'
                 }}
@@ -256,7 +288,9 @@
           </div>
 
           @if (product.description) {
-            <p>{{ product.description }}</p>
+            <p>
+              {{ product.description }}
+            </p>
           }
 
           <ul class="variants">
@@ -265,11 +299,22 @@
               track variant.variantId
             ) {
               <li>
-                <strong>{{ variant.name }}</strong>
-                <span>{{ variant.variantCode }}</span>
-                <span>{{ variant.status }}</span>
+                <strong>
+                  {{ variant.name }}
+                </strong>
+
+                <span>
+                  {{ variant.variantCode }}
+                </span>
+
+                <span>
+                  {{ variant.status }}
+                </span>
+
                 @if (variant.gtin) {
-                  <span>{{ variant.gtin }}</span>
+                  <span>
+                    {{ variant.gtin }}
+                  </span>
                 }
               </li>
             }
@@ -288,11 +333,15 @@
           Previous
         </button>
 
-        <span>{{ page() }} of {{ totalPages() }}</span>
+        <span>
+          {{ page() }} of {{ totalPages() }}
+        </span>
 
         <button
           type="button"
-          [disabled]="page() >= totalPages()"
+          [disabled]="
+            page() >= totalPages()
+          "
           (click)="loadProducts(page() + 1)"
         >
           Next
